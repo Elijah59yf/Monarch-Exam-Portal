@@ -89,3 +89,26 @@
 .result.is-error .result-title {
   color: var(--red);
 }
+
+/* Portal locked notice */
+.notice {
+  text-align: center;
+  padding: 1rem 0;
+}
+
+.notice-icon {
+  font-size: 2rem;
+  margin-bottom: 0.75rem;
+}
+
+.notice-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.notice-msg {
+  font-size: 0.85rem;
+  color: var(--mid);
+  line-height: 1.6;
+}

@@ -3,6 +3,27 @@
 const API = (() => {
   const BASE = 'https://api.monarchdem.me';
 
+  /**
+   * Check if the portal is open (CurrentActiveBatch != 0).
+   * Returns { open: true, batch: N } or { open: false }.
+   */
+  async function checkPortalStatus() {
+    try {
+      const res = await fetch(`${BASE}/api/exam-setting`, {
+        headers: { 'Content-Type': 'application/json' },
+      });
+      if (!res.ok) return { open: true }; // fail-open so the form still shows
+      const data = await res.json();
+      const batch = data.data?.attributes?.CurrentActiveBatch
+                 ?? data.data?.CurrentActiveBatch
+                 ?? data.CurrentActiveBatch
+                 ?? 1;
+      return { open: batch !== 0, batch };
+    } catch {
+      return { open: true }; // network error → let them try
+    }
+  }
+
   async function fetchPassword(matricNo, surname) {
     const res = await fetch(`${BASE}/api/exam-credentials/fetch-password`, {
       method: 'POST',
@@ -16,7 +37,6 @@ const API = (() => {
     const data = await res.json();
 
     if (res.ok) {
-      // 200 — password returned
       return { ok: true, password: data.MoodlePassword || data.password || data.data?.MoodlePassword };
     }
 
@@ -35,5 +55,5 @@ const API = (() => {
     return { ok: false, status: res.status, message: msg };
   }
 
-  return { fetchPassword };
+  return { checkPortalStatus, fetchPassword };
 })();
