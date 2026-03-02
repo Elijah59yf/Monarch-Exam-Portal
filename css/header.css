@@ -1,0 +1,37 @@
+.site-header {
+  border-bottom: 1px solid var(--border);
+  background: var(--white);
+}
+
+.header-inner {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--black);
+}
+
+.logo span {
+  font-weight: 400;
+  color: var(--mid);
+}
+
+.header-link {
+  font-size: 0.8rem;
+  color: var(--mid);
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.2s;
+}
+
+.header-link:hover {
+  border-color: var(--black);
+  color: var(--black);
+}

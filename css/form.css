@@ -1,0 +1,126 @@
+.main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.5rem;
+}
+
+.card {
+  width: 100%;
+  max-width: var(--max-w);
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 2rem;
+}
+
+.card-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.card-desc {
+  font-size: 0.85rem;
+  color: var(--mid);
+  margin-bottom: 1.5rem;
+}
+
+/* Form */
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 500;
+  margin-bottom: 0.35rem;
+  color: var(--dark);
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg);
+  color: var(--black);
+  transition: border-color 0.2s;
+}
+
+.form-input::placeholder {
+  color: var(--light);
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--black);
+}
+
+.form-group.error .form-input {
+  border-color: var(--red);
+}
+
+.error-msg {
+  display: none;
+  font-size: 0.75rem;
+  color: var(--red);
+  margin-top: 0.3rem;
+}
+
+.form-group.error .error-msg {
+  display: block;
+}
+
+/* Submit */
+.submit-btn {
+  width: 100%;
+  padding: 0.65rem;
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--white);
+  background: var(--black);
+  border: none;
+  border-radius: var(--radius);
+  transition: opacity 0.2s;
+}
+
+.submit-btn:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+.submit-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.submit-btn.loading .btn-label {
+  visibility: hidden;
+}
+
+.submit-btn {
+  position: relative;
+}
+
+.spinner {
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 18px;
+  height: 18px;
+  margin: -9px 0 0 -9px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: var(--white);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+.submit-btn.loading .spinner {
+  display: block;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }

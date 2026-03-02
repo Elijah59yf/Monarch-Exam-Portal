@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Exam Portal — Get Your Password</title>
+  <meta name="description" content="Retrieve your Moodle exam password." />
+
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/header.css" />
+  <link rel="stylesheet" href="css/form.css" />
+  <link rel="stylesheet" href="css/result.css" />
+  <link rel="stylesheet" href="css/footer.css" />
+
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔑</text></svg>" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="logo">Monarch <span>Exam Portal</span></div>
+      <a href="mailto:support@monarchdem.me" class="header-link">Help</a>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="card">
+
+      <!-- Form -->
+      <div id="form-content">
+        <h1 class="card-title">Get Your Password</h1>
+        <p class="card-desc">Enter your matric number and surname to retrieve your Moodle exam password.</p>
+
+        <form id="pw-form" autocomplete="off" novalidate>
+
+          <div class="form-group" id="matric-group">
+            <label for="matric">Matric Number</label>
+            <input type="text" id="matric" class="form-input" placeholder="e.g. 20/52HA001" required />
+            <p class="error-msg"></p>
+          </div>
+
+          <div class="form-group" id="surname-group">
+            <label for="surname">Surname</label>
+            <input type="text" id="surname" class="form-input" placeholder="e.g. Adeyemi" required />
+            <p class="error-msg"></p>
+          </div>
+
+          <button type="submit" class="submit-btn" id="submit-btn">
+            <span class="btn-label">Get Password</span>
+            <span class="spinner"></span>
+          </button>
+
+        </form>
+      </div>
+
+      <!-- Result (shown after submit) -->
+      <div id="result" class="result"></div>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p>&copy; 2026 Monarch Exam Portal</p>
+  </footer>
+
+  <script src="js/api.js"></script>
+  <script src="js/form-handler.js"></script>
+  <script src="js/app.js"></script>
+
+</body>
+</html>
