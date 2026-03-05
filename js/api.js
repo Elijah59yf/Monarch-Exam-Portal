@@ -55,5 +55,21 @@ const API = (() => {
     return { ok: false, status: res.status, message: msg };
   }
 
-  return { checkPortalStatus, fetchPassword };
+  /**
+   * Fetch all courses from Strapi.
+   * Returns the array of course objects.
+   */
+  async function fetchCourses() {
+    try {
+      const res = await fetch(`${BASE}/api/courses`);
+      if (!res.ok) return [];
+      const json = await res.json();
+      // Strapi v5 returns { data: [...] }
+      return json.data || [];
+    } catch {
+      return [];
+    }
+  }
+
+  return { checkPortalStatus, fetchPassword, fetchCourses };
 })();

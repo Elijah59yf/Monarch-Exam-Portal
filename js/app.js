@@ -6,6 +6,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   const status = await API.checkPortalStatus();
   if (!status.open) {
     document.getElementById('form-content').style.display = 'none';
-    document.getElementById('portal-locked').style.display = 'block';
+    document.getElementById('portal-locked').style.display = '';
   }
 });

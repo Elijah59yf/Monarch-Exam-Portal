@@ -1,22 +1,33 @@
 .site-header {
-  border-bottom: 1px solid var(--border);
   background: var(--white);
+  border-bottom: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(8px);
 }
 
 .header-inner {
-  max-width: 720px;
+  max-width: 780px;
   margin: 0 auto;
-  padding: 1rem 1.5rem;
+  padding: 0.875rem 1.5rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
 .logo {
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   font-weight: 700;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
   color: var(--black);
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+.logo:hover {
+  opacity: 0.8;
 }
 
 .logo span {
@@ -24,14 +35,26 @@
   color: var(--mid);
 }
 
+.header-nav {
+  display: flex;
+  gap: 0.5rem;
+}
+
 .header-link {
   font-size: 0.8rem;
+  font-weight: 500;
   color: var(--mid);
-  border-bottom: 1px solid transparent;
-  transition: border-color 0.2s;
+  padding: 0.4rem 0.75rem;
+  border-radius: var(--radius-sm);
+  transition: color 0.2s, background 0.2s;
 }
 
 .header-link:hover {
-  border-color: var(--black);
   color: var(--black);
+  background: var(--bg);
+}
+
+.header-link.active {
+  color: var(--accent);
+  background: var(--accent-light);
 }

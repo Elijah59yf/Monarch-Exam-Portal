@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 *, *::before, *::after {
   margin: 0;
   padding: 0;
@@ -7,24 +9,27 @@
 html {
   font-size: 16px;
   scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
   font-family: var(--font);
   color: var(--black);
   background: var(--bg);
-  line-height: 1.5;
+  line-height: 1.6;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
 
-a { color: var(--black); text-decoration: none; }
+a { color: var(--accent); text-decoration: none; transition: color 0.2s; }
+a:hover { color: var(--accent-hover); }
 img { max-width: 100%; display: block; }
 button { cursor: pointer; font-family: var(--font); }
-input { font-family: var(--font); font-size: 1rem; }
+input, select { font-family: var(--font); font-size: 0.95rem; }
 
 ::selection {
-  background: var(--black);
+  background: var(--accent);
   color: var(--white);
 }

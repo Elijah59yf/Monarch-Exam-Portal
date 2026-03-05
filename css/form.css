@@ -3,7 +3,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2rem 1.5rem;
+  padding: 2.5rem 1.5rem;
 }
 
 .card {
@@ -12,62 +12,93 @@
   background: var(--white);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 2rem;
+  padding: 2.25rem;
+  box-shadow: var(--shadow-lg);
 }
 
 .card-title {
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin-bottom: 0.25rem;
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.35rem;
+  color: var(--black);
 }
 
 .card-desc {
-  font-size: 0.85rem;
+  font-size: 0.875rem;
   color: var(--mid);
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.75rem;
+  line-height: 1.5;
 }
 
 /* Form */
 .form-group {
-  margin-bottom: 1rem;
+  margin-bottom: 1.15rem;
 }
 
 .form-group label {
   display: block;
   font-size: 0.8rem;
-  font-weight: 500;
-  margin-bottom: 0.35rem;
+  font-weight: 600;
+  margin-bottom: 0.4rem;
   color: var(--dark);
+  letter-spacing: 0.01em;
 }
 
 .form-input {
   width: 100%;
-  padding: 0.6rem 0.75rem;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--bg);
+  padding: 0.65rem 0.85rem;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--white);
   color: var(--black);
-  transition: border-color 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  font-size: 0.95rem;
+}
+
+select.form-input {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.85rem center;
+  padding-right: 2.25rem;
+  cursor: pointer;
+}
+
+select.form-input option:disabled {
+  color: var(--light);
+}
+
+select.form-input:invalid {
+  color: var(--light);
 }
 
 .form-input::placeholder {
-  color: var(--light);
+  color: var(--muted);
+}
+
+.form-input:hover {
+  border-color: var(--muted);
 }
 
 .form-input:focus {
   outline: none;
-  border-color: var(--black);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
 .form-group.error .form-input {
   border-color: var(--red);
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.08);
 }
 
 .error-msg {
   display: none;
   font-size: 0.75rem;
   color: var(--red);
-  margin-top: 0.3rem;
+  margin-top: 0.35rem;
+  font-weight: 500;
 }
 
 .form-group.error .error-msg {
@@ -77,32 +108,35 @@
 /* Submit */
 .submit-btn {
   width: 100%;
-  padding: 0.65rem;
-  margin-top: 0.5rem;
+  padding: 0.7rem;
+  margin-top: 0.75rem;
   font-size: 0.9rem;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--white);
-  background: var(--black);
+  background: var(--accent);
   border: none;
-  border-radius: var(--radius);
-  transition: opacity 0.2s;
+  border-radius: var(--radius-sm);
+  transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+  position: relative;
+  letter-spacing: 0.01em;
 }
 
 .submit-btn:hover:not(:disabled) {
-  opacity: 0.85;
+  background: var(--accent-hover);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+}
+
+.submit-btn:active:not(:disabled) {
+  transform: translateY(1px);
 }
 
 .submit-btn:disabled {
-  opacity: 0.4;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
 .submit-btn.loading .btn-label {
   visibility: hidden;
-}
-
-.submit-btn {
-  position: relative;
 }
 
 .spinner {
@@ -113,7 +147,7 @@
   width: 18px;
   height: 18px;
   margin: -9px 0 0 -9px;
-  border: 2px solid rgba(255,255,255,0.3);
+  border: 2.5px solid rgba(255,255,255,0.3);
   border-top-color: var(--white);
   border-radius: 50%;
   animation: spin 0.6s linear infinite;

@@ -33,6 +33,9 @@ const FormHandler = (() => {
     } else if (surnameInput.value.trim().length < 2) {
       setErr('surname-group', 'Too short');
       valid = false;
+    } else if (surnameInput.value.trim() !== surnameInput.value.trim().toLowerCase()) {
+      setErr('surname-group', 'Surname must be all lowercase');
+      valid = false;
     }
 
     return valid;
@@ -83,14 +86,16 @@ const FormHandler = (() => {
     if (success) {
       resultEl.classList.remove('is-error');
       resultEl.innerHTML = `
-        <div class="result-icon">✓</div>
-        <div class="result-title">Password Retrieved</div>
-        <div class="result-msg">Copy your Moodle password below.</div>
-        <div class="pw-box">
-          <span class="pw-value" id="pw-val">${escapeHtml(value)}</span>
-          <button class="copy-btn" id="copy-btn" type="button">Copy</button>
+        <div class="result-card">
+          <div class="result-icon result-icon--success">✓</div>
+          <div class="result-title">Password Retrieved</div>
+          <div class="result-msg">Copy your Moodle password below.</div>
+          <div class="pw-box">
+            <span class="pw-value" id="pw-val">${escapeHtml(value)}</span>
+            <button class="copy-btn" id="copy-btn" type="button">Copy</button>
+          </div>
+          <button class="back-btn" id="back-btn" type="button">Done</button>
         </div>
-        <button class="back-btn" id="back-btn" type="button">Done</button>
       `;
 
       document.getElementById('copy-btn').addEventListener('click', copyPw);
@@ -98,10 +103,12 @@ const FormHandler = (() => {
     } else {
       resultEl.classList.add('is-error');
       resultEl.innerHTML = `
-        <div class="result-icon">✕</div>
-        <div class="result-title">Error</div>
-        <div class="result-msg">${escapeHtml(value)}</div>
-        <button class="back-btn" id="back-btn" type="button">Try Again</button>
+        <div class="result-card">
+          <div class="result-icon result-icon--error">✕</div>
+          <div class="result-title">Error</div>
+          <div class="result-msg">${escapeHtml(value)}</div>
+          <button class="back-btn" id="back-btn" type="button">Try Again</button>
+        </div>
       `;
 
       document.getElementById('back-btn').addEventListener('click', reset);

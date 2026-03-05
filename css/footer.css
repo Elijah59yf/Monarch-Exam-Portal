@@ -2,10 +2,11 @@
   border-top: 1px solid var(--border);
   background: var(--white);
   text-align: center;
-  padding: 1rem 1.5rem;
+  padding: 1.25rem 1.5rem;
 }
 
 .site-footer p {
   font-size: 0.75rem;
   color: var(--light);
+  letter-spacing: 0.01em;
 }

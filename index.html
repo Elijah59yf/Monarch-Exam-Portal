@@ -3,77 +3,131 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Exam Portal — Get Your Password</title>
-  <meta name="description" content="Retrieve your Moodle exam password." />
-
-  <link rel="stylesheet" href="css/variables.css" />
-  <link rel="stylesheet" href="css/base.css" />
-  <link rel="stylesheet" href="css/header.css" />
-  <link rel="stylesheet" href="css/form.css" />
-  <link rel="stylesheet" href="css/result.css" />
-  <link rel="stylesheet" href="css/footer.css" />
-
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔑</text></svg>" />
+  <title>Register — Monarch Exam Portal</title>
+  <meta name="description" content="Register and pay for the Monarch mock exam." />
+  <link rel="stylesheet" href="css/bento.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📝</text></svg>" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://js.paystack.co/v1/inline.js"></script>
 </head>
 <body>
 
   <header class="site-header">
     <div class="header-inner">
-      <div class="logo">Monarch <span>Exam Portal</span></div>
-      <a href="mailto:eakinseloyin@gmail.com" class="header-link">Help</a>
+      <a href="index.html" class="logo">
+        <span class="logo-crest">M</span>
+        Monarch <span class="logo-light">Exam Portal</span>
+      </a>
+      <nav class="header-nav">
+        <a href="index.html" class="nav-link active">Register</a>
+        <a href="password.html" class="nav-link">Get Password</a>
+      </nav>
     </div>
   </header>
 
-  <main class="main">
-    <div class="card">
+  <main class="bento-page">
 
-      <!-- Portal Locked Notice (batch 0) -->
-      <div id="portal-locked" class="notice" style="display:none">
-        <div class="notice-icon">⏳</div>
-        <h2 class="notice-title">Portal Not Active</h2>
-        <p class="notice-msg">The portal is strictly batched. Do not request your Moodle password until your specific batch has been announced. Entering details early will result in an access denial.</p>
+    <!-- Registration Closed Notice -->
+    <div id="reg-closed" class="notice-overlay" style="display:none">
+      <div class="notice-card">
+        <div class="notice-icon"><i data-lucide="clock"></i></div>
+        <h2 class="notice-title">Registration Closed</h2>
+        <p class="notice-msg">Registration is currently closed. Please check back later when a new registration window opens.</p>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div id="form-content">
+
+      <!-- ── Hero Row ── -->
+      <div class="bento-row hero-row">
+        <div class="bento-cell hero-main">
+          <span class="hero-badge">2026 Session</span>
+          <h1 class="hero-title">Mock Exam<br>Registration</h1>
+          <p class="hero-desc">Secure your slot. Pay online. Get your exam credentials instantly.</p>
+        </div>
+        <div class="bento-cell hero-side">
+          <div class="hero-features">
+            <div class="hero-feature">
+              <span class="feature-icon"><i data-lucide="lock"></i></span>
+              <span>Encrypted</span>
+            </div>
+            <div class="hero-feature">
+              <span class="feature-icon"><i data-lucide="zap"></i></span>
+              <span>Instant</span>
+            </div>
+            <div class="hero-feature">
+              <span class="feature-icon"><i data-lucide="clipboard-list"></i></span>
+              <span>Batched</span>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <!-- Form -->
-      <div id="form-content">
-        <h1 class="card-title">Get Your Password</h1>
-        <p class="card-desc">Enter your matric number and surname to retrieve your Moodle exam password.</p>
+      <!-- ── Registration Form (Bento Grid) ── -->
+      <form id="reg-form" class="bento-form" autocomplete="off" novalidate>
 
-        <form id="pw-form" autocomplete="off" novalidate>
-
-          <div class="form-group" id="matric-group">
-            <label for="matric">Matric Number</label>
-            <input type="text" id="matric" class="form-input" placeholder="e.g. 20/52HA001" required />
-            <p class="error-msg"></p>
+        <!-- Course Selection -->
+        <div class="bento-cell tier-cell" id="courses-group">
+          <div class="cell-header">
+            <h2 class="cell-title">Select Courses</h2>
+            <p class="cell-subtitle">Choose the mock exams you want to register for</p>
           </div>
-
-          <div class="form-group" id="surname-group">
-            <label for="surname">Surname</label>
-            <input type="text" id="surname" class="form-input" placeholder="e.g. Adeyemi" required />
-            <p class="error-msg"></p>
+          <div id="course-list" class="course-grid">
+            <div class="course-loading">Loading courses…</div>
           </div>
+          <div class="cart-total-bar">
+            <span class="cart-total-label">Total Due</span>
+            <span class="cart-total-amount">₦<span id="cart-total">0</span></span>
+          </div>
+          <p class="error-msg"></p>
+        </div>
 
-          <button type="submit" class="submit-btn" id="submit-btn">
-            <span class="btn-label">Get Password</span>
+        <!-- Student Details -->
+        <div class="bento-cell field-cell" id="firstname-group">
+          <label for="firstname">First Name</label>
+          <input type="text" id="firstname" class="bento-input" placeholder="e.g. Tunde" required />
+          <p class="error-msg"></p>
+        </div>
+
+        <div class="bento-cell field-cell" id="surname-group">
+          <label for="surname">Surname</label>
+          <input type="text" id="surname" class="bento-input" placeholder="e.g. Adeyemi" required />
+          <p class="error-msg"></p>
+        </div>
+
+        <div class="bento-cell field-cell field-cell--wide" id="matric-group">
+          <label for="matric">Matric Number</label>
+          <input type="text" id="matric" class="bento-input" placeholder="e.g. 20/52HA001" required />
+          <p class="error-msg"></p>
+        </div>
+
+        <!-- CTA -->
+        <div class="bento-cell cta-cell">
+          <button type="submit" class="cta-btn" id="submit-btn">
+            <span class="btn-label">
+              <i data-lucide="lock-keyhole" class="btn-icon"></i>
+              Pay &amp; Register
+            </span>
             <span class="spinner"></span>
           </button>
+          <p class="cta-note">Secured by Paystack · 256-bit encryption</p>
+        </div>
 
-        </form>
-      </div>
-
-      <!-- Result (shown after submit) -->
-      <div id="result" class="result"></div>
-
+      </form>
     </div>
+
+    <!-- Result (shown after payment) -->
+    <div id="result" class="result"></div>
+
   </main>
 
   <footer class="site-footer">
-    <p>&copy; 2026 Monarch Exam Portal</p>
+    <p>&copy; 2026 Monarch Exam Portal — All rights reserved</p>
   </footer>
 
   <script src="js/api.js"></script>
-  <script src="js/form-handler.js"></script>
-  <script src="js/app.js"></script>
-
+  <script src="js/register.js"></script>
+  <script>lucide.createIcons();</script>
 </body>
 </html>

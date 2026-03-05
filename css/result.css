@@ -6,23 +6,43 @@
 
 .result.show {
   display: block;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .result-icon {
-  font-size: 2rem;
-  margin-bottom: 0.75rem;
+  width: 52px;
+  height: 52px;
+  line-height: 52px;
+  font-size: 1.5rem;
+  margin: 0 auto 1rem;
+  border-radius: 50%;
+  background: var(--green-light);
+  color: var(--green);
+  font-weight: 700;
+}
+
+.result.is-error .result-icon {
+  background: var(--red-light);
+  color: var(--red);
 }
 
 .result-title {
-  font-size: 1.1rem;
-  font-weight: 600;
-  margin-bottom: 0.25rem;
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 0.35rem;
+  color: var(--black);
 }
 
 .result-msg {
-  font-size: 0.85rem;
+  font-size: 0.875rem;
   color: var(--mid);
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
 }
 
 /* Password box */
@@ -31,37 +51,39 @@
   align-items: center;
   gap: 0.5rem;
   background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 0.6rem 0.75rem;
-  margin-bottom: 1.25rem;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.7rem 0.85rem;
+  margin-bottom: 1.5rem;
 }
 
 .pw-value {
   flex: 1;
   font-family: var(--mono);
   font-size: 1.05rem;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--black);
   word-break: break-all;
   text-align: left;
+  letter-spacing: 0.03em;
 }
 
 .copy-btn {
-  padding: 0.3rem 0.6rem;
+  padding: 0.35rem 0.7rem;
   font-size: 0.75rem;
-  font-weight: 500;
+  font-weight: 600;
   background: var(--white);
-  border: 1px solid var(--border);
-  border-radius: 4px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
   color: var(--dark);
   white-space: nowrap;
-  transition: background 0.15s, border-color 0.15s;
+  transition: all 0.2s;
 }
 
 .copy-btn:hover {
   background: var(--bg);
-  border-color: var(--dark);
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
 .copy-btn.copied {
@@ -73,42 +95,88 @@
 /* Back / retry button */
 .back-btn {
   display: inline-block;
-  padding: 0.55rem 1.5rem;
+  padding: 0.6rem 1.75rem;
   font-size: 0.85rem;
-  font-weight: 500;
-  background: var(--black);
+  font-weight: 600;
+  background: var(--accent);
   color: var(--white);
   border: none;
-  border-radius: var(--radius);
-  transition: opacity 0.2s;
+  border-radius: var(--radius-sm);
+  transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
 }
 
-.back-btn:hover { opacity: 0.85; }
+.back-btn:hover {
+  background: var(--accent-hover);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+}
+
+.back-btn:active {
+  transform: translateY(1px);
+}
+
+/* Ref box */
+.ref-box {
+  font-size: 0.8rem;
+  color: var(--mid);
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.7rem 0.85rem;
+  margin-bottom: 1.5rem;
+  text-align: left;
+  word-break: break-all;
+  line-height: 1.6;
+}
+
+.ref-value {
+  font-family: var(--mono);
+  color: var(--black);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.ref-box a {
+  color: var(--accent);
+  text-decoration: underline;
+}
 
 /* Error state */
 .result.is-error .result-title {
   color: var(--red);
 }
 
-/* Portal locked notice */
+.result-msg a {
+  color: var(--accent);
+  text-decoration: underline;
+  font-weight: 500;
+}
+
+/* Portal locked / Registration closed notice */
 .notice {
   text-align: center;
-  padding: 1rem 0;
+  padding: 1.5rem 0;
 }
 
 .notice-icon {
-  font-size: 2rem;
-  margin-bottom: 0.75rem;
+  width: 52px;
+  height: 52px;
+  line-height: 52px;
+  font-size: 1.5rem;
+  margin: 0 auto 1rem;
+  border-radius: 50%;
+  background: #fef9c3;
+  color: #a16207;
 }
 
 .notice-title {
-  font-size: 1.1rem;
-  font-weight: 600;
+  font-size: 1.15rem;
+  font-weight: 700;
   margin-bottom: 0.5rem;
+  color: var(--black);
 }
 
 .notice-msg {
-  font-size: 0.85rem;
+  font-size: 0.875rem;
   color: var(--mid);
-  line-height: 1.6;
+  line-height: 1.7;
 }
