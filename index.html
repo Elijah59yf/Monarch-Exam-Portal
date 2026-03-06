@@ -73,7 +73,14 @@
             <h2 class="cell-title">Select Courses</h2>
             <p class="cell-subtitle">Choose the mock exams you want to register for</p>
           </div>
-          <div id="course-list" class="course-grid">
+          <div class="filter-bar">
+            <div id="filter-container" class="filter-pills"></div>
+            <div class="search-wrap">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+              <input id="search-input" type="text" class="search-input" placeholder="Search…" />
+            </div>
+          </div>
+          <div id="course-list" class="course-grid course-grid--scroll">
             <div class="course-loading">Loading courses…</div>
           </div>
           <div class="cart-total-bar">

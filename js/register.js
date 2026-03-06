@@ -1,14 +1,18 @@
-/* Register — Multi-course cart + Paystack payment + Strapi sync */
+/* Register — Smart grouping, pill filters, search, animated list + Paystack */
 
 const Register = (() => {
-  const BASE = 'https://api.monarchdem.me';
+  const BASE = 'http://api.monarchdem.me'; // TODO: move to config
   const PAYSTACK_KEY = 'pk_live_08fe8ab4a13094390c94b54e7021381803bbd666';
 
   let form, firstnameInput, surnameInput, matricInput, submitBtn;
   let formContent, resultEl, courseListEl, cartTotalEl;
+  let filterBox, searchInput;
 
-  // Stores fetched course objects keyed by documentId
-  let coursesMap = {};
+  // State
+  let allCourses  = [];   // processed course objects
+  let coursesMap  = {};   // keyed by documentId
+  let activeFilter = 'All';
+  let searchQuery  = '';
 
   function init() {
     form           = document.getElementById('reg-form');
@@ -20,6 +24,8 @@ const Register = (() => {
     resultEl       = document.getElementById('result');
     courseListEl    = document.getElementById('course-list');
     cartTotalEl    = document.getElementById('cart-total');
+    filterBox      = document.getElementById('filter-container');
+    searchInput    = document.getElementById('search-input');
 
     if (!form) return;
 
@@ -29,18 +35,24 @@ const Register = (() => {
     firstnameInput.addEventListener('input', () => clearErr('firstname-group'));
     surnameInput.addEventListener('input', () => clearErr('surname-group'));
     matricInput.addEventListener('input', () => clearErr('matric-group'));
+
+    // Live search
+    if (searchInput) {
+      searchInput.addEventListener('input', () => {
+        searchQuery = searchInput.value.trim().toLowerCase();
+        renderList();
+      });
+    }
   }
 
-  /* ── Render courses fetched from API ── */
+  /* ── Process raw courses from API ── */
   function renderCourses(courses) {
     if (!courses.length) {
       courseListEl.innerHTML = '<div class="course-loading">No courses available at this time.</div>';
       return;
     }
 
-    courseListEl.innerHTML = '';
-
-    courses.forEach((course) => {
+    allCourses = courses.map((course) => {
       const id = course.documentId;
       let price = 0;
       let closed = false;
@@ -56,36 +68,125 @@ const Register = (() => {
         closed = true;
       }
 
-      // Store for price lookups
-      coursesMap[id] = { ...course, resolvedPrice: price, closed };
+      // ── SMART GROUPING ──
+      // Department "General" → use Faculty as category
+      // Otherwise → use Department
+      const dept = course.Department || 'General';
+      const displayCategory = dept === 'General'
+        ? (course.Faculty || 'General')
+        : dept;
 
-      const label = document.createElement('label');
-      label.className = `course-card${closed ? ' course-closed' : ''}`;
-
-      label.innerHTML = `
-        <input type="checkbox" name="course" value="${esc(id)}" data-price="${price}" ${closed ? 'disabled' : ''} />
-        <span class="course-check">✓</span>
-        <div class="course-info">
-          <div class="course-code">${esc(course.CourseCode)}${regTag ? ` · ${regTag} Reg` : ''}</div>
-          <div class="course-title">${esc(course.Title)}</div>
-          <div class="course-faculty">${esc(course.Faculty)}</div>
-        </div>
-        ${closed
-          ? '<span class="course-closed-badge">Closed</span>'
-          : `<span class="course-price">₦${price.toLocaleString()}</span>`
-        }
-      `;
-
-      courseListEl.appendChild(label);
+      const obj = { ...course, resolvedPrice: price, closed, regTag, displayCategory };
+      coursesMap[id] = obj;
+      return obj;
     });
 
-    // Attach change listeners for live total calculation
-    courseListEl.querySelectorAll('input[type="checkbox"]').forEach((cb) => {
-      cb.addEventListener('change', () => {
-        updateTotal();
-        clearErr('courses-group');
+    buildPills();
+    renderList();
+  }
+
+  /* ══════════════ PILL FILTERS ══════════════ */
+  function buildPills() {
+    if (!filterBox) return;
+    // Only build pills for categories that actually have courses
+    const cats = ['All', ...new Set(allCourses.map(c => c.displayCategory).sort())];
+    filterBox.innerHTML = '';
+    cats.forEach(cat => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.textContent = cat;
+      btn.className = 'filter-pill' + (cat === activeFilter ? ' active' : '');
+      btn.addEventListener('click', () => {
+        activeFilter = cat;
+        filterBox.querySelectorAll('.filter-pill').forEach(b =>
+          b.classList.toggle('active', b.textContent === activeFilter)
+        );
+        renderList();
       });
+      filterBox.appendChild(btn);
     });
+  }
+
+  /* ══════════════ LIST RENDERING ══════════════ */
+  function renderList() {
+    // Preserve checked state across re-renders
+    const prevChecked = new Set(
+      Array.from(courseListEl.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value)
+    );
+
+    // Filter
+    let filtered = allCourses;
+    if (activeFilter !== 'All') {
+      filtered = filtered.filter(c => c.displayCategory === activeFilter);
+    }
+    if (searchQuery) {
+      filtered = filtered.filter(c =>
+        c.CourseCode.toLowerCase().includes(searchQuery) ||
+        c.Title.toLowerCase().includes(searchQuery) ||
+        c.displayCategory.toLowerCase().includes(searchQuery)
+      );
+    }
+
+    // Fade out → rebuild → stagger in
+    courseListEl.style.opacity = '0';
+    courseListEl.style.transition = 'opacity 0.15s ease';
+
+    setTimeout(() => {
+      if (!filtered.length) {
+        courseListEl.innerHTML = '<div class="course-empty">No courses match your filter.</div>';
+        courseListEl.style.opacity = '1';
+        return;
+      }
+
+      courseListEl.innerHTML = '';
+
+      filtered.forEach((c) => {
+        const id = c.documentId;
+        const wasChecked = prevChecked.has(id);
+
+        const label = document.createElement('label');
+        label.className = 'course-card course-card--fixed anim-enter' + (c.closed ? ' course-closed' : '');
+
+        label.innerHTML = `
+          <input type="checkbox" name="course" value="${esc(id)}" data-price="${c.resolvedPrice}" ${c.closed ? 'disabled' : ''} ${wasChecked ? 'checked' : ''} />
+          <span class="course-check">✓</span>
+          <div class="course-info">
+            <div class="course-code">${esc(c.CourseCode)}${c.regTag ? ` · ${c.regTag} Reg` : ''}</div>
+            <div class="course-title">${esc(c.Title)}</div>
+            <div class="course-category">${esc(c.displayCategory)}</div>
+          </div>
+          ${c.closed
+            ? '<span class="course-closed-badge">Closed</span>'
+            : `<span class="course-price">₦${c.resolvedPrice.toLocaleString()}</span>`
+          }
+        `;
+
+        courseListEl.appendChild(label);
+      });
+
+      // Re-attach checkbox listeners
+      courseListEl.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+        cb.addEventListener('change', () => {
+          updateTotal();
+          clearErr('courses-group');
+        });
+      });
+      updateTotal();
+
+      // Fade container back in
+      courseListEl.style.opacity = '1';
+
+      // Staggered slide-up animation
+      requestAnimationFrame(() => {
+        const cards = courseListEl.querySelectorAll('.course-card');
+        cards.forEach((card, i) => {
+          setTimeout(() => {
+            card.classList.remove('anim-enter');
+            card.classList.add('anim-visible');
+          }, i * 45);
+        });
+      });
+    }, 150);
   }
 
   /* ── Cart total ── */
@@ -229,7 +330,6 @@ const Register = (() => {
     if (success) {
       resultEl.classList.remove('is-error');
 
-      // Build the batch schedule list from the assignedBatches object
       let batchHtml = '';
       if (assignedBatches && typeof assignedBatches === 'object') {
         const items = Object.entries(assignedBatches)
@@ -275,9 +375,13 @@ const Register = (() => {
     resultEl.innerHTML = '';
     formContent.style.display = 'block';
     form.reset();
-    // Uncheck all courses & reset total
     courseListEl.querySelectorAll('input[type="checkbox"]').forEach((cb) => { cb.checked = false; });
     cartTotalEl.textContent = '0';
+    activeFilter = 'All';
+    searchQuery = '';
+    if (searchInput) searchInput.value = '';
+    buildPills();
+    renderList();
     ['firstname-group', 'surname-group', 'matric-group', 'courses-group'].forEach(clearErr);
     firstnameInput.focus();
   }
@@ -294,17 +398,14 @@ const Register = (() => {
 document.addEventListener('DOMContentLoaded', async () => {
   Register.init();
 
-  // Fetch courses from Strapi and render them
   const courses = await API.fetchCourses();
 
   if (!courses.length) {
-    // No courses at all — show closed notice
     document.getElementById('form-content').style.display = 'none';
     document.getElementById('reg-closed').style.display = '';
     return;
   }
 
-  // Check if ALL courses are closed
   const allClosed = courses.every((c) => !c.IsNormalRegOpen && !c.IsLateRegOpen);
   if (allClosed) {
     document.getElementById('form-content').style.display = 'none';
