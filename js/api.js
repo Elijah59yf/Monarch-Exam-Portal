@@ -1,7 +1,7 @@
 /* API — POST to Strapi custom endpoint */
 
 const API = (() => {
-  const BASE = 'http://localhost:1337';
+  const BASE = 'https://api.monarchdem.me';
 
   /**
    * Check if the portal is open (CurrentActiveBatch != 0).
