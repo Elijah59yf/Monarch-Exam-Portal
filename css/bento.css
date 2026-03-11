@@ -768,7 +768,39 @@ input, select { font-family: var(--font); }
   border-radius: 6px;
   padding: 0.45rem 0.75rem;
   display: flex;
+  align-items: center;
   justify-content: space-between;
+  gap: 0.5rem;
+}
+
+/* WhatsApp group join button */
+.wa-join-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: #25D366;
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.3rem 0.65rem;
+  border-radius: 5px;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 0.2s ease, transform 0.15s ease;
+  flex-shrink: 0;
+}
+
+.wa-join-btn:hover {
+  background: #1ebe5d;
+  transform: translateY(-1px);
+}
+
+.wa-join-btn:active {
+  transform: translateY(0);
+}
+
+.wa-join-btn svg {
+  flex-shrink: 0;
 }
 
 .result.is-error .result-title { color: var(--red); }
