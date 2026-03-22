@@ -1,10 +1,10 @@
 /* Register — Smart grouping, pill filters, search, animated list + Paystack */
 
 const Register = (() => {
-  const BASE = 'http://api.monarchdem.me'; // TODO: move to config
-  const PAYSTACK_KEY = 'pk_live_08fe8ab4a13094390c94b54e7021381803bbd666';
+  const BASE = 'http://localhost:1337'; // TODO: move to config
+  const PAYSTACK_KEY = 'pk_test_eae419bd426e36c089e47fd05fa762e056b3ca0e';
 
-  let form, firstnameInput, surnameInput, matricInput, submitBtn;
+  let form, firstnameInput, surnameInput, matricInput, contactEmailInput, submitBtn;
   let formContent, resultEl, courseListEl, cartTotalEl;
   let filterBox, searchInput;
 
@@ -19,6 +19,7 @@ const Register = (() => {
     firstnameInput = document.getElementById('firstname');
     surnameInput   = document.getElementById('surname');
     matricInput    = document.getElementById('matric');
+    contactEmailInput = document.getElementById('contactEmail');
     submitBtn      = document.getElementById('submit-btn');
     formContent    = document.getElementById('form-content');
     resultEl       = document.getElementById('result');
@@ -35,6 +36,7 @@ const Register = (() => {
     firstnameInput.addEventListener('input', () => clearErr('firstname-group'));
     surnameInput.addEventListener('input', () => clearErr('surname-group'));
     matricInput.addEventListener('input', () => clearErr('matric-group'));
+    contactEmailInput.addEventListener('input', () => clearErr('contactemail-group'));
 
     // Live search
     if (searchInput) {
@@ -233,6 +235,16 @@ const Register = (() => {
       valid = false;
     }
 
+    // Email validation (optional)
+    const email = contactEmailInput.value.trim();
+    if (email) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        setErr('contactemail-group', 'Enter a valid email address');
+        valid = false;
+      }
+    }
+
     return valid;
   }
 
@@ -261,6 +273,7 @@ const Register = (() => {
     const firstname = firstnameInput.value.trim();
     const surname   = surnameInput.value.trim();
     const matricNo  = matricInput.value.trim();
+    const contactEmail = contactEmailInput.value.trim();
     const autoEmail = `${matricNo}@monarchdem.me`;
     const totalNaira = updateTotal();
     const amount     = totalNaira * 100; // kobo
@@ -290,7 +303,7 @@ const Register = (() => {
         setLoading(false);
       },
       callback: (response) => {
-        syncWithBackend(response.reference, firstname, matricNo, surname, selectedCourseIds);
+        syncWithBackend(response.reference, firstname, matricNo, surname, contactEmail, selectedCourseIds);
       },
     });
 
@@ -298,12 +311,12 @@ const Register = (() => {
   }
 
   /* ── Backend sync ── */
-  async function syncWithBackend(reference, firstname, matricNo, surname, courseIds) {
+  async function syncWithBackend(reference, firstname, matricNo, surname, contactEmail, courseIds) {
     try {
       const res = await fetch(`${BASE}/api/exam-credentials/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reference, firstname, matricNo, surname, courseIds }),
+        body: JSON.stringify({ reference, firstname, matricNo, surname, contactEmail, courseIds }),
       });
 
       setLoading(false);
@@ -392,7 +405,7 @@ const Register = (() => {
     if (searchInput) searchInput.value = '';
     buildPills();
     renderList();
-    ['firstname-group', 'surname-group', 'matric-group', 'courses-group'].forEach(clearErr);
+    ['firstname-group', 'surname-group', 'matric-group', 'contactemail-group', 'courses-group'].forEach(clearErr);
     firstnameInput.focus();
   }
 

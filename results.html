@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Results — Monarch Exam Portal</title>
+  <meta name="description" content="Enter your Master PIN to securely check your M-Academy exam results." />
+  <link rel="stylesheet" href="css/bento.css" />
+  <link rel="icon" type="image/png" href="favicon/android-chrome-512x512-removebg-preview.png" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">
+        <span class="logo-crest">M</span>
+        Monarch <span class="logo-light">Exam Portal</span>
+      </a>
+      <nav class="header-nav">
+        <a href="index.html" class="nav-link">Register</a>
+        <a href="password.html" class="nav-link">Get Password</a>
+        <a href="results.html" class="nav-link active">Results</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="bento-page">
+
+    <!-- Main Content -->
+    <div id="form-content">
+
+      <!-- ── Hero ── -->
+      <div class="bento-row hero-row">
+        <div class="bento-cell hero-main hero-vault">
+          <span class="hero-badge">Secure Retrieval</span>
+          <h1 class="hero-title">Secure Result<br>Portal</h1>
+          <p class="hero-desc">Enter your Master PIN to view your official exam results.</p>
+        </div>
+      </div>
+
+      <!-- ── Result Checker Form ── -->
+      <form id="result-form" class="bento-form bento-form--pw" autocomplete="off" novalidate>
+
+        <div class="bento-cell field-cell field-cell--wide" id="pin-group">
+          <label for="pin">Master PIN</label>
+          <input type="text" id="pin" class="bento-input" placeholder="e.g. A1B2C3D4E5" required />
+          <p class="error-msg"></p>
+        </div>
+
+        <div class="bento-cell cta-cell">
+          <button type="submit" class="cta-btn cta-btn--result" id="submit-btn">
+            <span class="btn-label">
+              <i data-lucide="shield-check" class="btn-icon"></i>
+              Check Result
+            </span>
+            <span class="spinner"></span>
+          </button>
+          <p class="cta-note">Secured with your Master PIN · Verified scores only</p>
+        </div>
+
+      </form>
+    </div>
+
+    <!-- Result -->
+    <div id="result" class="result"></div>
+
+  </main>
+
+  <footer class="site-footer">
+    <p class="display-academic-term"></p>
+    <p>&copy; 2026 Monarch Exam Portal — All rights reserved</p>
+  </footer>
+
+  <script src="js/global.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/results.js"></script>
+  <script>lucide.createIcons();</script>
+</body>
+</html>

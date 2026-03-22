@@ -21,6 +21,7 @@
       <nav class="header-nav">
         <a href="index.html" class="nav-link active">Register</a>
         <a href="password.html" class="nav-link">Get Password</a>
+        <a href="results.html" class="nav-link">Results</a>
       </nav>
     </div>
   </header>
@@ -109,6 +110,13 @@
           <p class="error-msg"></p>
         </div>
 
+        <!-- Email Address -->
+        <div class="bento-cell field-cell field-cell--wide" id="contactemail-group">
+          <label for="contactEmail">Email Address</label>
+          <input type="email" id="contactEmail" name="contactEmail" class="bento-input" placeholder="e.g. your.email@example.com" />
+          <p class="error-msg"></p>
+        </div>
+
         <!-- CTA -->
         <div class="bento-cell cta-cell">
           <button type="submit" class="cta-btn" id="submit-btn">
@@ -130,9 +138,11 @@
   </main>
 
   <footer class="site-footer">
+    <p class="display-academic-term"></p>
     <p>&copy; 2026 Monarch Exam Portal — All rights reserved</p>
   </footer>
 
+  <script src="js/global.js"></script>
   <script src="js/api.js"></script>
   <script src="js/register.js"></script>
   <script>lucide.createIcons();</script>

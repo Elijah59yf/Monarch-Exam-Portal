@@ -1,7 +1,7 @@
 /* API — POST to Strapi custom endpoint */
 
 const API = (() => {
-  const BASE = 'https://api.monarchdem.me';
+  const BASE = 'http://localhost:1337';
 
   /**
    * Check if the portal is open (CurrentActiveBatch != 0).
@@ -71,5 +71,61 @@ const API = (() => {
     }
   }
 
-  return { checkPortalStatus, fetchPassword, fetchCourses };
+  /**
+   * Two-step result lookup via Master PIN.
+   *
+   * Step 1 — Validate MasterPIN against StudentProfile.
+   * Step 2 — Fetch published ExamResults by the resolved MatricNumber.
+   *
+   * Returns:
+   *   { ok: true,  results: [...], matricNumber }
+   *   { ok: false, message: '...' }
+   */
+  async function fetchResult(pin) {
+    // ── Step 1: Resolve MasterPIN → MatricNumber ──
+    const profileUrl =
+      `${BASE}/api/student-profiles?filters[MasterPIN][$eq]=${encodeURIComponent(pin.trim())}`;
+
+    const profileRes = await fetch(profileUrl, {
+      headers: { 'Content-Type': 'application/json' },
+    });
+    const profileData = await profileRes.json();
+
+    if (!profileRes.ok || !profileData.data || profileData.data.length === 0) {
+      return { ok: false, message: 'Invalid Master PIN.' };
+    }
+
+    const profile = profileData.data[0].attributes ?? profileData.data[0];
+    const matricNumber = profile.MatricNumber;
+
+    // ── Step 2: Fetch published results for this student ──
+    const resultsUrl =
+      `${BASE}/api/exam-results?filters[MatricNumber][$eq]=${encodeURIComponent(matricNumber)}&filters[IsPublished][$eq]=true`;
+
+    const resultsRes = await fetch(resultsUrl, {
+      headers: { 'Content-Type': 'application/json' },
+    });
+    const resultsData = await resultsRes.json();
+
+    if (!resultsRes.ok) {
+      return { ok: false, message: 'Could not retrieve results. Please try again.' };
+    }
+
+    if (!resultsData.data || resultsData.data.length === 0) {
+      return { ok: false, message: 'No published results found for your profile yet.' };
+    }
+
+    // Map the array — one entry per course
+    const results = resultsData.data.map(entry => {
+      const attrs = entry.attributes ?? entry;
+      return {
+        courseCode: attrs.CourseCode,
+        score: attrs.FinalScore,
+      };
+    });
+
+    return { ok: true, results, matricNumber };
+  }
+
+  return { checkPortalStatus, fetchPassword, fetchCourses, fetchResult };
 })();
