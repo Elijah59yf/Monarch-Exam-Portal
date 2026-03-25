@@ -65,7 +65,9 @@ const API = (() => {
       if (!res.ok) return [];
       const json = await res.json();
       // Strapi v5 returns { data: [...] }
-      return json.data || [];
+      const courses = json.data || [];
+      // Filter out hidden courses
+      return courses.filter(course => !(course.Hidden === true || course.attributes?.Hidden === true));
     } catch {
       return [];
     }
