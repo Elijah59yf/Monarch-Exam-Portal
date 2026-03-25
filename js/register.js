@@ -1,7 +1,7 @@
 /* Register — Smart grouping, pill filters, search, animated list + Paystack */
 
 const Register = (() => {
-  const BASE = 'http://localhost:1337'; // TODO: move to config
+  const BASE = 'https://api.monarchdem.me'; // TODO: move to config
   const PAYSTACK_KEY = 'pk_live_08fe8ab4a13094390c94b54e7021381803bbd666';
 
   let form, firstnameInput, surnameInput, matricInput, contactEmailInput, submitBtn;
