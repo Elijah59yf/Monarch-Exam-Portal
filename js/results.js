@@ -1,11 +1,28 @@
-/* Result Checker — form handling + state management */
+/* Result checker: Result PIN lookup, client-side grading, summary-first layout.
+   Grades follow the standard university scale. No color-coding: the letter
+   grade carries the meaning, and every row gets equal visual weight. */
 
 const ResultChecker = (() => {
   let form, pinInput, submitBtn;
   let resultEl, formContent;
 
-  // Will be populated dynamically from Global.getAcademicTerm()
   let sessionLabel = '';
+
+  // Standard university grading scale. Order matters: first match wins.
+  const SCALE = [
+    { min: 70, grade: 'A', remark: 'Excellent' },
+    { min: 60, grade: 'B', remark: 'Very Good' },
+    { min: 50, grade: 'C', remark: 'Good' },
+    { min: 45, grade: 'D', remark: 'Fair' },
+    { min: 40, grade: 'E', remark: 'Pass' },
+    { min: 0,  grade: 'F', remark: 'Fail' },
+  ];
+
+  function gradeFor(score) {
+    const n = Number(score);
+    const band = SCALE.find(b => n >= b.min) || SCALE[SCALE.length - 1];
+    return band;
+  }
 
   async function init() {
     form = document.getElementById('result-form');
@@ -16,10 +33,9 @@ const ResultChecker = (() => {
 
     if (!form) return;
 
-    // Fetch academic term from Global cache/API
     if (typeof Global !== 'undefined') {
       const term = await Global.getAcademicTerm();
-      if (term) sessionLabel = `${term.session} \u2014 ${term.semester}`;
+      if (term) sessionLabel = `${term.session} · ${term.semester}`;
     }
 
     form.addEventListener('submit', onSubmit);
@@ -28,42 +44,30 @@ const ResultChecker = (() => {
 
   function validate() {
     const pin = pinInput.value.trim();
-    if (!pin) {
-      setErr('pin-group', 'Enter your Master PIN');
-      return false;
-    }
-    if (pin.length < 10) {
-      setErr('pin-group', 'Master PIN must be 10 characters');
-      return false;
-    }
+    if (!pin) { setErr('pin-group', 'Enter your Result PIN'); return false; }
+    if (pin.length < 10) { setErr('pin-group', 'The Result PIN is 10 characters'); return false; }
     return true;
   }
 
   function setErr(id, msg) {
     const g = document.getElementById(id);
     g.classList.add('error');
-    g.querySelector('.error-msg').textContent = msg;
+    const errEl = g.querySelector('.err-msg');
+    if (errEl) { errEl.textContent = msg; errEl.style.display = 'block'; }
   }
 
   function clearErr(id) {
-    document.getElementById(id)?.classList.remove('error');
+    const g = document.getElementById(id);
+    if (!g) return;
+    g.classList.remove('error');
+    const errEl = g.querySelector('.err-msg');
+    if (errEl) errEl.style.display = 'none';
   }
 
   function setLoading(on) {
     submitBtn.classList.toggle('loading', on);
     submitBtn.disabled = on;
     pinInput.disabled = on;
-  }
-
-  /**
-   * Returns a CSS class based on the score value.
-   * >= 70 → success (green), >= 50 → warning (gold), < 50 → danger (red)
-   */
-  function scoreClass(score) {
-    const n = Number(score);
-    if (n >= 70) return 'rt-score--success';
-    if (n >= 50) return 'rt-score--warning';
-    return 'rt-score--danger';
   }
 
   async function onSubmit(e) {
@@ -75,12 +79,8 @@ const ResultChecker = (() => {
     try {
       const res = await API.fetchResult(pinInput.value);
       setLoading(false);
-
-      if (res.ok) {
-        showResult(true, res);
-      } else {
-        showResult(false, res.message);
-      }
+      if (res.ok) showResult(true, res);
+      else showResult(false, res.message);
     } catch (err) {
       setLoading(false);
       showResult(false, 'Network error. Check your connection and try again.');
@@ -94,65 +94,99 @@ const ResultChecker = (() => {
     if (success) {
       const { results, matricNumber } = value;
 
-      // Build table rows with conditional score coloring
-      const rows = results.map((r, i) => `
-        <tr class="${i % 2 === 0 ? 'rt-row--even' : 'rt-row--odd'}">
-          <td class="rt-cell rt-cell--code">${escapeHtml(r.courseCode)}</td>
-          <td class="rt-cell rt-cell--score ${scoreClass(r.score)}">${escapeHtml(String(r.score))}</td>
-        </tr>
-      `).join('');
+      const graded = results.map(r => ({ ...r, band: gradeFor(r.score) }));
+      const total = graded.reduce((sum, r) => sum + Number(r.score), 0);
+      const avg = graded.length ? (total / graded.length) : 0;
+      const passed = graded.filter(r => Number(r.score) >= 40).length;
+      const failed = graded.length - passed;
+      const avgBand = gradeFor(avg);
 
-      // Calculate average
-      const total = results.reduce((sum, r) => sum + Number(r.score), 0);
-      const avg = (total / results.length).toFixed(1);
+      // Detail rows: every row identical in weight, letter grade does the talking.
+      const rows = graded
+        .sort((a, b) => String(a.courseCode).localeCompare(String(b.courseCode)))
+        .map(r => `
+          <tr>
+            <td class="t-code">${escapeHtml(r.courseCode)}</td>
+            <td class="num t-score">${escapeHtml(String(r.score))}</td>
+            <td class="mid t-grade">${r.band.grade}</td>
+            <td class="t-remark">${r.band.remark}</td>
+          </tr>`).join('');
 
       resultEl.classList.remove('is-error');
       resultEl.innerHTML = `
-        <div class="result-card" id="result-card">
-          <div class="result-icon result-icon--success">✓</div>
-          <div class="result-title">Results Found</div>
-          <div class="result-msg">
-            Matric: <strong>${escapeHtml(matricNumber)}</strong>
-            · ${results.length} course${results.length > 1 ? 's' : ''}
+        <div class="doc-card">
+          <div class="doc-card-band">
+            <span class="seal">M</span>
+            <div>
+              <h2>Statement of Results</h2>
+              <p>Matric ${escapeHtml(matricNumber)}${sessionLabel ? ' · ' + escapeHtml(sessionLabel) : ''}</p>
+            </div>
           </div>
-          <div class="result-session">${sessionLabel ? 'Session: ' + escapeHtml(sessionLabel) : ''}</div>
+          <div class="doc-card-body">
 
-          <div class="rt-wrap">
-            <table class="rt-table">
+            <div class="res-summary">
+              <div class="res-stat">
+                <div class="s-lbl">Overall average</div>
+                <div class="s-val">${avg.toFixed(1)}</div>
+                <div class="s-sub">Grade ${avgBand.grade} &middot; ${avgBand.remark}</div>
+              </div>
+              <div class="res-stat">
+                <div class="s-lbl">Courses passed</div>
+                <div class="s-val">${passed} / ${graded.length}</div>
+                <div class="s-sub">40 and above is a pass</div>
+              </div>
+              <div class="res-stat">
+                <div class="s-lbl">Below pass mark</div>
+                <div class="s-val">${failed}</div>
+                <div class="s-sub">${failed === 0 ? 'None' : failed === 1 ? '1 course' : failed + ' courses'}</div>
+              </div>
+            </div>
+
+            <table class="grade-table">
               <thead>
                 <tr>
-                  <th class="rt-head">Course</th>
-                  <th class="rt-head rt-head--score">Score</th>
+                  <th>Course</th>
+                  <th class="num">Score</th>
+                  <th class="mid">Grade</th>
+                  <th>Remark</th>
                 </tr>
               </thead>
               <tbody>${rows}</tbody>
             </table>
-          </div>
 
-          <div class="rt-summary">
-            <span class="rt-summary-label">Average</span>
-            <span class="rt-summary-value ${scoreClass(avg)}">${avg}</span>
-          </div>
+            <div class="grade-key">
+              <span class="k"><b>A</b> 70&ndash;100 Excellent</span>
+              <span class="k"><b>B</b> 60&ndash;69 Very Good</span>
+              <span class="k"><b>C</b> 50&ndash;59 Good</span>
+              <span class="k"><b>D</b> 45&ndash;49 Fair</span>
+              <span class="k"><b>E</b> 40&ndash;44 Pass</span>
+              <span class="k"><b>F</b> 0&ndash;39 Fail</span>
+            </div>
 
-          <div class="result-actions">
-            <button class="back-btn" id="back-btn" type="button">Check Another</button>
-            <button class="print-btn" type="button" onclick="window.print()">🖨️ Print / Save PDF</button>
+            <div class="card-actions">
+              <button class="btn btn--ghost" id="back-btn" type="button">Check another</button>
+              <button class="btn" id="print-btn" type="button">Print or save PDF</button>
+            </div>
           </div>
-        </div>
-      `;
+        </div>`;
 
       document.getElementById('back-btn').addEventListener('click', reset);
+      document.getElementById('print-btn').addEventListener('click', () => window.print());
     } else {
       resultEl.classList.add('is-error');
       resultEl.innerHTML = `
-        <div class="result-card">
-          <div class="result-icon result-icon--error">✕</div>
-          <div class="result-title">Not Found</div>
-          <div class="result-msg">${escapeHtml(value)}</div>
-          <button class="back-btn" id="back-btn" type="button">Try Again</button>
-        </div>
-      `;
-
+        <div class="doc-card">
+          <div class="doc-card-band is-err">
+            <span class="seal">!</span>
+            <div><h2>No results found</h2></div>
+          </div>
+          <div class="doc-card-body">
+            <p style="font-size:14.5px;color:var(--ink-soft)">${escapeHtml(value)}</p>
+            <div class="card-actions">
+              <button class="btn" id="back-btn" type="button">Try again</button>
+            </div>
+          </div>
+        </div>`;
       document.getElementById('back-btn').addEventListener('click', reset);
     }
   }
@@ -162,17 +196,17 @@ const ResultChecker = (() => {
     resultEl.innerHTML = '';
     formContent.style.display = 'block';
     form.reset();
+    setLoading(false);
     clearErr('pin-group');
     pinInput.focus();
   }
 
   function escapeHtml(s) {
     const d = document.createElement('div');
-    d.textContent = s;
+    d.textContent = s == null ? '' : s;
     return d.innerHTML;
   }
 
-  // Auto-init on DOM ready
   document.addEventListener('DOMContentLoaded', () => {
     ResultChecker.init();
   });

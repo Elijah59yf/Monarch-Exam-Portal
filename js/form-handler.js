@@ -1,4 +1,5 @@
-/* Form handling — validation + submission */
+/* Password retrieval: validate, fetch, reveal on screen, copy button,
+   and fire a non-blocking backup email once the password is in hand. */
 
 const FormHandler = (() => {
   let form, matricInput, surnameInput, submitBtn;
@@ -23,19 +24,16 @@ const FormHandler = (() => {
     let valid = true;
 
     if (!matricInput.value.trim()) {
-      setErr('matric-group', 'Enter your Matric Number');
-      valid = false;
+      setErr('matric-group', 'Enter your matric number'); valid = false;
     }
 
-    if (!surnameInput.value.trim()) {
-      setErr('surname-group', 'Enter your Surname');
-      valid = false;
-    } else if (surnameInput.value.trim().length < 2) {
-      setErr('surname-group', 'Too short');
-      valid = false;
-    } else if (surnameInput.value.trim() !== surnameInput.value.trim().toLowerCase()) {
-      setErr('surname-group', 'Surname must be all lowercase');
-      valid = false;
+    const surname = surnameInput.value.trim();
+    if (!surname) {
+      setErr('surname-group', 'Enter your surname'); valid = false;
+    } else if (surname.length < 2) {
+      setErr('surname-group', 'Too short'); valid = false;
+    } else if (surname !== surname.toLowerCase()) {
+      setErr('surname-group', 'Surname must be all lowercase'); valid = false;
     }
 
     return valid;
@@ -44,11 +42,16 @@ const FormHandler = (() => {
   function setErr(id, msg) {
     const g = document.getElementById(id);
     g.classList.add('error');
-    g.querySelector('.error-msg').textContent = msg;
+    const errEl = g.querySelector('.err-msg');
+    if (errEl) { errEl.textContent = msg; errEl.style.display = 'block'; }
   }
 
   function clearErr(id) {
-    document.getElementById(id)?.classList.remove('error');
+    const g = document.getElementById(id);
+    if (!g) return;
+    g.classList.remove('error');
+    const errEl = g.querySelector('.err-msg');
+    if (errEl) errEl.style.display = 'none';
   }
 
   function setLoading(on) {
@@ -69,6 +72,9 @@ const FormHandler = (() => {
       setLoading(false);
 
       if (res.ok) {
+        // On-screen reveal is the primary path. Queue the backup email in the
+        // background; it must not block or delay what the student sees.
+        API.sendPasswordBackup(matricInput.value, surnameInput.value);
         showResult(true, res.password);
       } else {
         showResult(false, res.message);
@@ -86,30 +92,44 @@ const FormHandler = (() => {
     if (success) {
       resultEl.classList.remove('is-error');
       resultEl.innerHTML = `
-        <div class="result-card">
-          <div class="result-icon result-icon--success">✓</div>
-          <div class="result-title">Password Retrieved</div>
-          <div class="result-msg">Copy your Moodle password below.</div>
-          <div class="pw-box">
-            <span class="pw-value" id="pw-val">${escapeHtml(value)}</span>
-            <button class="copy-btn" id="copy-btn" type="button">Copy</button>
+        <div class="doc-card">
+          <div class="doc-card-band">
+            <span class="seal">&#10003;</span>
+            <div>
+              <h2>Password issued</h2>
+              <p>Copy it below, then log in to Moodle.</p>
+            </div>
           </div>
-          <button class="back-btn" id="back-btn" type="button">Done</button>
-        </div>
-      `;
+          <div class="doc-card-body">
+            <div class="pw-box">
+              <span class="pw-value" id="pw-val">${escapeHtml(value)}</span>
+              <button class="copy-btn" id="copy-btn" type="button">Copy</button>
+            </div>
+            <p class="pw-hint">Your Moodle username is your matric number.</p>
+            <p class="email-note">A copy is on its way to the email on your registration. If it does not arrive, the password on this screen is the one to use.</p>
+            <div class="card-actions">
+              <button class="btn btn--ghost" id="back-btn" type="button">Done</button>
+            </div>
+          </div>
+        </div>`;
 
       document.getElementById('copy-btn').addEventListener('click', copyPw);
       document.getElementById('back-btn').addEventListener('click', reset);
     } else {
       resultEl.classList.add('is-error');
       resultEl.innerHTML = `
-        <div class="result-card">
-          <div class="result-icon result-icon--error">✕</div>
-          <div class="result-title">Error</div>
-          <div class="result-msg">${escapeHtml(value)}</div>
-          <button class="back-btn" id="back-btn" type="button">Try Again</button>
-        </div>
-      `;
+        <div class="doc-card">
+          <div class="doc-card-band is-err">
+            <span class="seal">!</span>
+            <div><h2>Could not retrieve</h2></div>
+          </div>
+          <div class="doc-card-body">
+            <p style="font-size:14.5px;color:var(--ink-soft)">${escapeHtml(value)}</p>
+            <div class="card-actions">
+              <button class="btn" id="back-btn" type="button">Try again</button>
+            </div>
+          </div>
+        </div>`;
 
       document.getElementById('back-btn').addEventListener('click', reset);
     }
@@ -143,6 +163,7 @@ const FormHandler = (() => {
     resultEl.innerHTML = '';
     formContent.style.display = 'block';
     form.reset();
+    setLoading(false);
     clearErr('matric-group');
     clearErr('surname-group');
     matricInput.focus();
@@ -150,7 +171,7 @@ const FormHandler = (() => {
 
   function escapeHtml(s) {
     const d = document.createElement('div');
-    d.textContent = s;
+    d.textContent = s == null ? '' : s;
     return d.innerHTML;
   }
 

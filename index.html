@@ -3,19 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Register — Monarch Exam Portal</title>
+  <title>Register · Monarch Exam Portal</title>
   <meta name="description" content="Register and pay for the Monarch mock exam." />
-  <link rel="stylesheet" href="css/bento.css" />
+  <link rel="stylesheet" href="css/portal.css" />
   <link rel="icon" type="image/png" href="favicon/android-chrome-512x512-removebg-preview.png" />
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://js.paystack.co/v1/inline.js"></script>
 </head>
-<body>
+<body class="reg-page">
 
   <header class="site-header">
     <div class="header-inner">
       <a href="index.html" class="logo">
-        <span class="logo-crest">M</span>
+        <span class="logo-crest"><img src="favicon/android-chrome-512x512-removebg-preview.png" alt="" /></span>
         Monarch <span class="logo-light">Exam Portal</span>
       </a>
       <nav class="header-nav">
@@ -26,109 +26,104 @@
     </div>
   </header>
 
-  <main class="bento-page">
+  <main class="page">
 
     <!-- Registration Closed Notice -->
-    <div id="reg-closed" class="notice-overlay" style="display:none">
-      <div class="notice-card">
-        <div class="notice-icon"><i data-lucide="clock"></i></div>
-        <h2 class="notice-title">Registration Closed</h2>
-        <p class="notice-msg">Registration is currently closed. Please check back later when a new registration window opens.</p>
-      </div>
+    <div id="reg-closed" class="notice" style="display:none">
+      <div class="notice-ico"><i data-lucide="calendar-clock"></i></div>
+      <h2>Registration Closed</h2>
+      <p>Registration is not open right now. Check back when the next registration window is announced.</p>
     </div>
 
     <!-- Main Content -->
     <div id="form-content">
 
-      <!-- ── Hero Row ── -->
-      <div class="bento-row hero-row">
-        <div class="bento-cell hero-main">
-          <span class="hero-badge">2026 Session</span>
-          <h1 class="hero-title">Mock Exam<br>Registration</h1>
-          <p class="hero-desc">Secure your slot. Pay online. Get your exam credentials instantly.</p>
-        </div>
-        <div class="bento-cell hero-side">
-          <div class="hero-features">
-            <div class="hero-feature">
-              <span class="feature-icon"><i data-lucide="lock"></i></span>
-              <span>Encrypted</span>
-            </div>
-            <div class="hero-feature">
-              <span class="feature-icon"><i data-lucide="zap"></i></span>
-              <span>Instant</span>
-            </div>
-            <div class="hero-feature">
-              <span class="feature-icon"><i data-lucide="clipboard-list"></i></span>
-              <span>Batched</span>
-            </div>
-          </div>
-        </div>
+      <div class="doc-head">
+        <span class="stamp">Session<small>2026</small></span>
+        <h1>Mock Exam Registration</h1>
+        <hr class="rule" />
       </div>
 
-      <!-- ── Registration Form (Bento Grid) ── -->
-      <form id="reg-form" class="bento-form" autocomplete="off" novalidate>
+      <form id="reg-form" autocomplete="off" novalidate>
+        <div class="reg-grid">
 
-        <!-- Course Selection -->
-        <div class="bento-cell tier-cell" id="courses-group">
-          <div class="cell-header">
-            <h2 class="cell-title">Select Courses</h2>
-            <p class="cell-subtitle">Choose the mock exams you want to register for</p>
-          </div>
-          <div class="filter-bar">
-            <div id="filter-container" class="filter-pills"></div>
-            <div class="search-wrap">
-              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-              <input id="search-input" type="text" class="search-input" placeholder="Search…" />
+          <!-- Course selection -->
+          <section class="reg-courses" id="courses-group">
+            <div class="sect-head">
+              <h2>Select courses</h2>
             </div>
-          </div>
-          <div id="course-list" class="course-grid course-grid--scroll">
-            <div class="course-loading">Loading courses…</div>
-          </div>
-          <div class="cart-total-bar">
-            <span class="cart-total-label">Total Due</span>
-            <span class="cart-total-amount">₦<span id="cart-total">0</span></span>
-          </div>
-          <p class="error-msg"></p>
-        </div>
 
-        <!-- Student Details -->
-        <div class="bento-cell field-cell" id="firstname-group">
-          <label for="firstname">First Name</label>
-          <input type="text" id="firstname" class="bento-input" placeholder="e.g. Tunde" required />
-          <p class="error-msg"></p>
-        </div>
+            <div class="browse-tools">
+              <div class="search-wrap">
+                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                <input id="search-input" type="text" class="search-input" placeholder="Search by course code or title" />
+              </div>
+            </div>
 
-        <div class="bento-cell field-cell" id="surname-group">
-          <label for="surname">Surname</label>
-          <input type="text" id="surname" class="bento-input" placeholder="e.g. Adeyemi" required />
-          <p class="error-msg"></p>
-        </div>
+            <div id="course-groups" class="course-groups">
+              <div class="course-loading">Loading courses...</div>
+            </div>
+            <p class="err-msg" data-for="courses-group"></p>
+          </section>
 
-        <div class="bento-cell field-cell field-cell--wide" id="matric-group">
-          <label for="matric">Matric Number</label>
-          <input type="text" id="matric" class="bento-input" placeholder="e.g. 20/52HA001" required />
-          <p class="error-msg"></p>
-        </div>
+          <!-- Admit-card summary (sticky on desktop) -->
+          <aside class="reg-aside">
+            <div class="ticket" id="ticket">
+              <div class="ticket-head">
+                <span class="ticket-mark"><i data-lucide="ticket"></i></span>
+                <span class="serial" id="ticket-session">Session</span>
+              </div>
+              <div class="ticket-lines" id="ticket-lines">
+                <div class="ticket-empty">No courses selected yet.</div>
+              </div>
+              <div class="perf"></div>
+              <div class="ticket-total">
+                <span class="lbl">Total due</span>
+                <span class="amt">&#8358;<span id="cart-total">0</span><span class="count" id="cart-count">0 courses</span></span>
+              </div>
+            </div>
+          </aside>
 
-        <!-- Email Address -->
-        <div class="bento-cell field-cell field-cell--wide" id="contactemail-group">
-          <label for="contactEmail">Email Address</label>
-          <input type="email" id="contactEmail" name="contactEmail" class="bento-input" placeholder="e.g. your.email@example.com" />
-          <p class="error-msg"></p>
-        </div>
+          <!-- Student details -->
+          <section class="reg-details">
+            <div class="sect-head">
+              <h2>Your details</h2>
+            </div>
 
-        <!-- CTA -->
-        <div class="bento-cell cta-cell">
-          <button type="submit" class="cta-btn" id="submit-btn">
-            <span class="btn-label">
-              <i data-lucide="lock-keyhole" class="btn-icon"></i>
-              Pay &amp; Register
-            </span>
-            <span class="spinner"></span>
-          </button>
-          <p class="cta-note">Secured by Paystack · 256-bit encryption</p>
-        </div>
+            <div class="field-row">
+              <div class="field" id="firstname-group">
+                <label for="firstname">First name</label>
+                <input type="text" id="firstname" class="input" placeholder="Tunde" required />
+                <p class="err-msg"></p>
+              </div>
+              <div class="field" id="surname-group">
+                <label for="surname">Surname</label>
+                <input type="text" id="surname" class="input" placeholder="Adeyemi" required />
+                <p class="err-msg"></p>
+              </div>
+            </div>
 
+            <div class="field" id="matric-group">
+              <label for="matric">Matric number</label>
+              <input type="text" id="matric" class="input" placeholder="20/52HA001" required />
+              <p class="err-msg"></p>
+            </div>
+
+            <div class="field" id="contactemail-group">
+              <label for="contactEmail">Email address</label>
+              <input type="email" id="contactEmail" name="contactEmail" class="input" placeholder="you@example.com" />
+              <p class="err-msg"></p>
+            </div>
+
+            <div class="field" style="margin-top:22px">
+              <button type="submit" class="btn" id="submit-btn" disabled>
+                <span class="btn-txt"><i data-lucide="stamp" class="btn-ico"></i> Pay and register</span>
+                <span class="spin"></span>
+              </button>
+            </div>
+          </section>
+
+        </div>
       </form>
     </div>
 
@@ -137,9 +132,21 @@
 
   </main>
 
+  <!-- Sticky mobile bar -->
+  <div class="mobile-bar" id="mobile-bar">
+    <div class="mb-info">
+      <div class="mb-total">&#8358;<span id="mb-total">0</span></div>
+      <div class="mb-count" id="mb-count">0 courses</div>
+    </div>
+    <button type="button" class="btn" id="pay-mobile" disabled>
+      <span class="btn-txt">Pay and register</span>
+      <span class="spin"></span>
+    </button>
+  </div>
+
   <footer class="site-footer">
-    <p class="display-academic-term"></p>
-    <p>&copy; 2026 Monarch Exam Portal — All rights reserved</p>
+    <p class="term display-academic-term"></p>
+    <p>&copy; 2026 Monarch Exam Portal. All rights reserved.</p>
   </footer>
 
   <script src="js/global.js"></script>

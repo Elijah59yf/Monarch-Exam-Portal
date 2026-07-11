@@ -1,4 +1,4 @@
-/* App — init */
+/* App: init */
 document.addEventListener('DOMContentLoaded', async () => {
   FormHandler.init();
 

@@ -1,0 +1,810 @@
+/* Monarch Exam Portal - letterpress admit-card system
+   Manila paper, maroon ink, gold foil. Flat, ruled, perforated.
+   No gradients as fills, no glows, no soft bento cards. */
+
+@import url('https://fonts.googleapis.com/css2?family=Spectral:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+
+:root {
+  /* Paper */
+  --paper:      #EFE6D2;
+  --paper-2:    #E7DBC0;   /* recessed panels */
+  --paper-3:    #F5EFE0;   /* raised chits */
+  --edge:       #D8C9A6;   /* paper edge / hairline */
+
+  /* Ink */
+  --ink:        #26201A;   /* body text, warm near-black */
+  --ink-soft:   #5A5044;
+  --ink-faint:  #8A7E6C;
+
+  /* Maroon */
+  --maroon:      #6B1D2A;
+  --maroon-deep: #501520;
+  --maroon-lt:   #8B3040;
+
+  /* Gold foil */
+  --gold:      #B4892B;
+  --gold-deep: #8E6A1E;
+  --gold-lt:   #D8B457;
+
+  /* Status (kept sparse; results use NO color) */
+  --ok:   #2C6E49;
+  --err:  #A12B23;
+
+  --font-head: 'Spectral', Georgia, 'Times New Roman', serif;
+  --font-ui:   'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-num:  'Space Mono', 'Courier New', monospace;
+
+  --doc-w: 720px;   /* reading width for single-column docs (password, results) */
+  --reg-w: 1200px;  /* upper bound for the wide, fluid registration layout */
+}
+
+/* ── Reset ── */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  font-family: var(--font-ui);
+  color: var(--ink);
+  background-color: var(--paper);
+  /* 2% grain, letterpress tooth */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+h1, h2, h3 { margin: 0; font-family: var(--font-head); font-weight: 700; line-height: 1.15; }
+p { margin: 0; }
+a { color: var(--maroon); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+button { font-family: var(--font-ui); cursor: pointer; }
+input { font-family: var(--font-ui); }
+img, svg { display: block; }
+::selection { background: var(--maroon); color: var(--paper-3); }
+
+.mono { font-family: var(--font-num); font-variant-numeric: tabular-nums; }
+/* Currency: Inter carries the naira glyph reliably; Space Mono does not. */
+.naira { font-family: var(--font-ui); font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
+
+/* ── Masthead ── */
+.site-header {
+  border-bottom: 3px double var(--maroon);
+  background: var(--paper);
+}
+/* The masthead spans the full fluid shell width on every page, so the site
+   name and nav line up across registration, password, and results rather than
+   sitting squeezed in a narrow centered band on the simpler pages. Page
+   *content* width is set separately below. */
+.header-inner {
+  max-width: var(--reg-w);
+  margin: 0 auto;
+  padding: 14px clamp(18px, 4vw, 48px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.logo {
+  display: flex; align-items: center; gap: 8px;
+  font-family: var(--font-head);
+  font-weight: 800;
+  font-size: 20px;
+  color: var(--maroon);
+  text-decoration: none;
+  letter-spacing: 0.01em;
+}
+/* Bare crown crest — the favicon is already transparent, no box behind it.
+   Nudged up a touch so the crown's optical centre lines up with the wordmark's
+   cap height instead of sitting low against it. */
+.logo-crest {
+  width: 32px; height: 32px;
+  display: grid; place-items: center;
+  flex-shrink: 0;
+  margin-top: -3px;
+}
+.logo-crest img { width: 32px; height: 32px; object-fit: contain; }
+.logo-light { color: var(--ink-soft); font-weight: 600; }
+.header-nav { display: flex; gap: 4px; }
+.nav-link {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--ink-soft);
+  text-decoration: none;
+  padding: 6px 12px;
+  border: 1px solid transparent;
+}
+.nav-link:hover { color: var(--maroon); }
+.nav-link.active {
+  color: var(--maroon);
+  border-color: var(--edge);
+  background: var(--paper-3);
+}
+
+/* ── Page ── */
+.page {
+  max-width: var(--doc-w);
+  margin: 0 auto;
+  padding: 34px 22px 72px;
+}
+
+/* Registration content spans the full fluid shell — it's a two-column layout
+   that has real use for the width. The password and results pages keep the
+   narrow reading measure (--doc-w) for their single-column forms, while their
+   header and footer still span the shared shell width set above/below. */
+.reg-page .page {
+  max-width: var(--reg-w);
+  padding: 34px clamp(18px, 4vw, 48px) 72px;
+}
+
+/* Overline used across doc heads */
+.overline {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gold-deep);
+}
+
+/* ── Document head ── */
+.doc-head { position: relative; margin-bottom: 26px; }
+.doc-head h1 {
+  font-size: clamp(30px, 6vw, 46px);
+  color: var(--maroon);
+  margin: 8px 0 10px;
+}
+.doc-head .lede { color: var(--ink-soft); max-width: 46ch; font-size: 15px; }
+.doc-head .rule {
+  margin-top: 18px;
+  border: none;
+  border-top: 1px solid var(--edge);
+  position: relative;
+}
+.doc-head .rule::after {
+  content: "";
+  position: absolute; left: 0; top: -1px;
+  width: 88px; border-top: 3px solid var(--gold);
+}
+
+/* Rubber stamp */
+.stamp {
+  position: absolute; top: -6px; right: 4px;
+  transform: rotate(-9deg);
+  border: 2.5px solid var(--maroon);
+  color: var(--maroon);
+  font-family: var(--font-num);
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 6px 12px;
+  opacity: 0.82;
+  border-radius: 3px;
+  box-shadow: inset 0 0 0 1.5px var(--paper);
+  line-height: 1.1;
+  text-align: center;
+}
+.stamp small { display: block; font-size: 8.5px; letter-spacing: 0.1em; opacity: 0.85; }
+@media (max-width: 560px) { .stamp { display: none; } }
+
+/* ── Form fields ── */
+.field { margin-bottom: 18px; }
+.field label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 7px;
+}
+.field label .hint {
+  text-transform: none; letter-spacing: 0; font-weight: 500;
+  color: var(--ink-faint); font-size: 11px;
+}
+.input {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 16px;
+  color: var(--ink);
+  background: var(--paper-3);
+  border: 1px solid var(--edge);
+  border-bottom: 2px solid var(--ink-faint);
+  border-radius: 4px;
+  outline: none;
+  transition: border-color 0.12s ease, background 0.12s ease;
+}
+.input::placeholder { color: var(--ink-faint); }
+.input:focus {
+  border-color: var(--maroon);
+  border-bottom-color: var(--maroon);
+  background: #fff;
+}
+.field.error .input { border-color: var(--err); border-bottom-color: var(--err); }
+.err-msg {
+  min-height: 0; margin: 6px 0 0;
+  font-size: 12.5px; color: var(--err); font-weight: 500;
+  display: none;
+}
+.field.error .err-msg { display: block; }
+
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 520px) { .field-row { grid-template-columns: 1fr; gap: 0; } }
+
+/* ── Buttons ── */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+  width: 100%;
+  padding: 14px 20px;
+  font-size: 15px; font-weight: 700; letter-spacing: 0.02em;
+  color: var(--paper-3);
+  background: var(--maroon);
+  border: 1px solid var(--maroon-deep);
+  border-radius: 4px;
+  box-shadow: 3px 3px 0 var(--maroon-deep);
+  position: relative;
+  transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.12s ease;
+}
+.btn:hover:not(:disabled) { background: var(--maroon-deep); }
+.btn:active:not(:disabled) { transform: translate(3px, 3px); box-shadow: 0 0 0 var(--maroon-deep); }
+.btn:disabled { opacity: 0.62; cursor: default; }
+.btn .btn-ico { width: 17px; height: 17px; }
+.btn .btn-txt { display: inline-flex; align-items: center; gap: 9px; }
+.btn .spin { display: none; width: 17px; height: 17px; border: 2px solid rgba(255,255,255,0.35); border-top-color: var(--paper-3); border-radius: 50%; animation: spin 0.7s linear infinite; }
+.btn.loading .btn-txt { visibility: hidden; }
+.btn.loading .spin { display: block; position: absolute; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.btn--gold {
+  color: var(--maroon-deep);
+  background: var(--gold-lt);
+  border-color: var(--gold-deep);
+  box-shadow: 3px 3px 0 var(--gold-deep);
+}
+.btn--gold:hover:not(:disabled) { background: var(--gold); }
+.btn--gold:active:not(:disabled) { box-shadow: 0 0 0 var(--gold-deep); }
+
+.btn--ghost {
+  color: var(--maroon);
+  background: transparent;
+  border: 1px solid var(--edge);
+  box-shadow: none;
+  font-weight: 600;
+}
+.btn--ghost:hover:not(:disabled) { background: var(--paper-3); border-color: var(--maroon); }
+.btn--ghost:active:not(:disabled) { transform: none; }
+
+.form-note {
+  margin-top: 12px;
+  font-size: 12.5px;
+  color: var(--ink-faint);
+  text-align: center;
+}
+
+/* ══════════════ REGISTRATION ══════════════ */
+
+/* Section label with rule */
+.sect-head {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+  border-bottom: 1px solid var(--edge);
+  padding-bottom: 8px;
+  margin: 30px 0 14px;
+}
+.sect-head h2 { font-size: 20px; color: var(--maroon); }
+.sect-head .sub { font-size: 12.5px; color: var(--ink-faint); }
+
+/* Course browser */
+.browse-tools { margin-bottom: 14px; }
+.search-wrap { position: relative; }
+.search-wrap svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: var(--ink-faint); }
+.search-input {
+  width: 100%;
+  padding: 11px 14px 11px 36px;
+  font-size: 14px;
+  background: var(--paper-3);
+  border: 1px solid var(--edge);
+  border-radius: 4px;
+  outline: none;
+  color: var(--ink);
+}
+.search-input:focus { border-color: var(--maroon); }
+
+.course-groups { border-top: 1px solid var(--edge); }
+.group { border-bottom: 1px solid var(--edge); }
+.group-head {
+  width: 100%;
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 4px;
+  background: none; border: none; text-align: left;
+  font-family: var(--font-head);
+  font-size: 15.5px; font-weight: 700; color: var(--ink);
+}
+.group-head:hover { color: var(--maroon); }
+.group-caret {
+  width: 15px; height: 15px; flex-shrink: 0; color: var(--gold-deep);
+  transition: transform 0.16s ease;
+}
+.group.open .group-caret { transform: rotate(90deg); }
+.group-name { flex: 1; }
+.group-count {
+  font-family: var(--font-num); font-size: 12px; color: var(--ink-faint);
+  font-weight: 400;
+}
+.group-count .sel { color: var(--maroon); font-weight: 700; }
+.group-body { display: none; padding: 0 0 8px; }
+.group.open .group-body { display: block; }
+
+/* Course line = admit-card row */
+.course {
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 12px;
+  margin: 0 0 7px;
+  background: var(--paper-3);
+  border: 1px solid var(--edge);
+  border-left: 3px solid var(--edge);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: border-color 0.12s ease, background 0.12s ease;
+}
+.course:hover { border-left-color: var(--gold); }
+.course input { position: absolute; opacity: 0; width: 0; height: 0; }
+.course .box {
+  width: 20px; height: 20px; flex-shrink: 0;
+  border: 1.5px solid var(--ink-faint);
+  border-radius: 2px;
+  display: grid; place-items: center;
+  color: transparent;
+  font-size: 13px; font-weight: 800;
+  background: var(--paper);
+}
+.course input:checked ~ .box { background: var(--maroon); border-color: var(--maroon-deep); color: var(--gold-lt); }
+.course:has(input:checked) { border-left-color: var(--maroon); background: #fff; }
+.course .info { flex: 1; min-width: 0; }
+.course .code {
+  font-family: var(--font-num); font-size: 13.5px; font-weight: 700; color: var(--maroon);
+}
+.course .code .tag {
+  font-family: var(--font-ui); font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--gold-deep); margin-left: 6px;
+}
+.course .title { font-size: 13.5px; color: var(--ink); }
+.course .price { font-family: var(--font-ui); font-variant-numeric: tabular-nums; font-weight: 700; font-size: 14px; color: var(--ink); white-space: nowrap; }
+
+/* Promo pricing — struck original beside the discounted price.
+   A small gold "Promo" chip on the code line advertises the deal; a micro
+   "N slots left" line warns it is finite. */
+.course .price.is-promo {
+  display: inline-flex; align-items: baseline; gap: 7px;
+}
+.price-was {
+  font-weight: 500; font-size: 12.5px; color: var(--ink-faint);
+  text-decoration: line-through; text-decoration-color: var(--maroon-lt);
+}
+.price-now { color: var(--maroon); }
+.code .tag.promo { color: var(--maroon); }
+.slots-left {
+  display: block; margin-top: 2px;
+  font-family: var(--font-num); font-size: 10.5px; font-weight: 700;
+  letter-spacing: 0.04em; text-transform: uppercase; color: var(--gold-deep);
+}
+.slots-left.low { color: var(--err); }
+
+/* Promo lines inside the admit-card summary */
+.ticket-line .l-was {
+  font-weight: 500; font-size: 11.5px; color: var(--ink-faint);
+  text-decoration: line-through; margin-right: 5px;
+}
+
+.course.closed { opacity: 0.55; cursor: default; }
+.course.closed:hover { border-left-color: var(--edge); }
+.course .closed-tag {
+  font-family: var(--font-num); font-size: 11px; font-weight: 700;
+  text-transform: uppercase; color: var(--ink-faint); white-space: nowrap;
+}
+
+.course-loading, .course-empty {
+  padding: 26px 10px; text-align: center; color: var(--ink-faint); font-size: 14px;
+}
+
+/* ── Admit-card summary (the ticket) ── */
+/* The ticket stays crisp on purpose — real admit cards and tickets have
+   straight edges, cut only by the perforation. Softening everything else
+   around it (buttons, inputs, tiles) keeps this reading as "a ticket." */
+.ticket {
+  margin: 30px 0 8px;
+  background: var(--paper-3);
+  border: 1.5px solid var(--maroon);
+  border-radius: 1px;
+  position: relative;
+  box-shadow: 4px 4px 0 rgba(107,29,42,0.12);
+}
+.ticket-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 13px 18px;
+  background: var(--maroon);
+  color: var(--paper-3);
+  border-radius: 0;
+}
+.ticket-head .t {
+  font-family: var(--font-head); font-weight: 700; font-size: 15px;
+  letter-spacing: 0.02em;
+}
+.ticket-head .serial { font-family: var(--font-num); font-size: 11px; color: var(--gold-lt); letter-spacing: 0.1em; text-transform: uppercase; }
+.ticket-mark { display: inline-flex; align-items: center; }
+.ticket-mark svg { width: 18px; height: 18px; color: var(--gold-lt); }
+
+/* perforation between body and total */
+.perf {
+  height: 14px; position: relative;
+  background:
+    radial-gradient(circle at center, var(--paper) 6px, transparent 6.5px) left center/22px 14px repeat-x;
+  border-top: 1px dashed var(--edge);
+  border-bottom: 1px dashed var(--edge);
+  margin: 0 -1.5px;
+}
+.perf::before, .perf::after {
+  content: ""; position: absolute; top: 50%; transform: translateY(-50%);
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--paper);
+  border: 1.5px solid var(--maroon);
+}
+.perf::before { left: -8px; }
+.perf::after { right: -8px; }
+
+.ticket-lines { padding: 14px 18px; }
+.ticket-line {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 10px;
+  padding: 5px 0;
+  font-size: 13.5px;
+  border-bottom: 1px dotted var(--edge);
+}
+.ticket-line:last-child { border-bottom: none; }
+.ticket-line .l-code { font-family: var(--font-num); font-weight: 700; color: var(--maroon); }
+.ticket-line .l-title { color: var(--ink-soft); font-size: 12.5px; }
+.ticket-line .l-price { font-family: var(--font-ui); font-variant-numeric: tabular-nums; font-weight: 700; }
+.ticket-empty { padding: 18px; text-align: center; color: var(--ink-faint); font-size: 13px; }
+
+.ticket-total {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 18px;
+}
+.ticket-total .lbl {
+  font-family: var(--font-ui); font-size: 11px; font-weight: 700;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-soft);
+}
+.ticket-total .amt { font-family: var(--font-ui); font-variant-numeric: tabular-nums; font-weight: 800; font-size: 26px; color: var(--maroon); }
+.ticket-total .amt .count { font-family: var(--font-ui); font-size: 12px; font-weight: 600; color: var(--ink-faint); display: block; text-align: right; }
+
+.ticket-foot { padding: 0 18px 18px; }
+
+/* ── Sticky mobile bar ── */
+.mobile-bar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
+  display: none;
+  align-items: center; gap: 14px;
+  padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+  background: var(--paper);
+  border-top: 2px solid var(--maroon);
+  box-shadow: 0 -3px 12px rgba(38,32,26,0.1);
+}
+.mobile-bar .mb-info { line-height: 1.2; }
+.mobile-bar .mb-total { font-family: var(--font-ui); font-variant-numeric: tabular-nums; font-weight: 800; font-size: 20px; color: var(--maroon); }
+.mobile-bar .mb-count { font-size: 11px; color: var(--ink-faint); }
+.mobile-bar .btn { width: auto; flex: 1; padding: 12px 18px; }
+@media (max-width: 720px) {
+  body.reg-page.courses-ready { padding-bottom: 82px; }
+  body.reg-page.courses-ready .mobile-bar { display: flex; }
+  /* On small screens the primary form submit is redundant with the sticky bar */
+  body.reg-page #submit-btn { display: none; }
+  body.reg-page #submit-btn + .form-note { margin-top: 0; }
+}
+
+/* ── Registration layout ──
+   Mobile: single column, stacked.
+   Tablet (≥760px): two columns appear — the ticket rides in a proportional
+     right rail that flexes with the viewport.
+   Desktop (≥1100px): the container is at its cap, so the extra width goes to
+     the course list and the rail settles at a comfortable fixed size.
+   The aside spans both content rows so the ticket can sit sticky beside them. */
+.reg-grid { display: block; }
+
+@media (min-width: 760px) {
+  .reg-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) clamp(240px, 28%, 340px);
+    grid-template-areas:
+      "courses aside"
+      "details aside";
+    column-gap: clamp(24px, 3.5vw, 56px);
+    align-items: start;
+  }
+  .reg-courses { grid-area: courses; }
+  .reg-details { grid-area: details; }
+  .reg-aside   { grid-area: aside; align-self: start; }
+  .reg-courses .sect-head { margin-top: 0; }
+  .reg-details .sect-head { margin-top: 26px; }
+  .reg-aside .ticket { position: sticky; top: 22px; margin: 0; }
+}
+
+/* On very wide screens hold the course list to a readable measure and let the
+   rail take a touch more room, so lines never stretch uncomfortably long. */
+@media (min-width: 1100px) {
+  .reg-grid { grid-template-columns: minmax(0, 1fr) 340px; }
+}
+
+/* ── Notices (Registration Closed / Portal Not Active) ── */
+.notice {
+  max-width: 460px; margin: 40px auto;
+  text-align: center;
+  border: 1.5px solid var(--maroon);
+  background: var(--paper-3);
+  border-radius: 4px;
+  padding: 34px 28px;
+  position: relative;
+}
+.notice::before {
+  content: ""; position: absolute; inset: 5px;
+  border: 1px solid var(--edge); border-radius: 3px; pointer-events: none;
+}
+.notice-ico { width: 40px; height: 40px; margin: 0 auto 14px; color: var(--maroon); }
+.notice h2 { font-size: 24px; color: var(--maroon); margin-bottom: 10px; }
+.notice p { color: var(--ink-soft); font-size: 14.5px; }
+
+/* ══════════════ RESULT / OUTCOME PANELS ══════════════ */
+.result { display: none; }
+.result.show { display: block; }
+
+.doc-card {
+  border: 1.5px solid var(--maroon);
+  background: var(--paper-3);
+  border-radius: 4px;
+  padding: 0 0 24px;
+  position: relative;
+  overflow: hidden;
+}
+.doc-card-band {
+  background: var(--maroon);
+  color: var(--paper-3);
+  padding: 16px 24px;
+  display: flex; align-items: center; gap: 14px;
+}
+.doc-card-band.is-err { background: var(--maroon-deep); }
+.doc-card-band .seal {
+  width: 40px; height: 40px; flex-shrink: 0;
+  border: 2px solid var(--gold-lt); border-radius: 50%;
+  display: grid; place-items: center;
+  color: var(--gold-lt); font-size: 20px; font-weight: 800;
+  font-family: var(--font-num);
+}
+.doc-card-band h2 { font-size: 20px; color: var(--paper-3); }
+.doc-card-band p { font-size: 12.5px; color: var(--gold-lt); }
+.doc-card-body { padding: 22px 24px 0; }
+
+/* Password reveal */
+.pw-box {
+  display: flex; align-items: stretch; gap: 0;
+  border: 1.5px solid var(--maroon);
+  border-radius: 3px;
+  overflow: hidden;
+  margin: 6px 0 4px;
+  background: #fff;
+}
+.pw-value {
+  flex: 1;
+  font-family: var(--font-num); font-weight: 700; font-size: 22px;
+  letter-spacing: 0.06em;
+  color: var(--maroon);
+  padding: 14px 16px;
+  word-break: break-all;
+  display: flex; align-items: center;
+}
+.copy-btn {
+  border: none; border-left: 1.5px solid var(--maroon);
+  background: var(--maroon); color: var(--paper-3);
+  padding: 0 20px; font-weight: 700; font-size: 13px;
+  letter-spacing: 0.04em;
+}
+.copy-btn:hover { background: var(--maroon-deep); }
+.copy-btn.copied { background: var(--ok); border-left-color: var(--ok); }
+.pw-hint { font-size: 12.5px; color: var(--ink-faint); margin: 10px 0 4px; }
+.email-note { font-size: 12.5px; color: var(--ink-soft); margin-top: 6px; }
+.email-note strong { color: var(--maroon); }
+
+.card-actions { display: flex; gap: 12px; padding: 20px 24px 0; flex-wrap: wrap; }
+.card-actions .btn { width: auto; flex: 1; min-width: 140px; }
+
+.ref-box {
+  margin: 18px 24px 0;
+  padding: 10px 14px;
+  background: var(--paper-2);
+  border: 1px solid var(--edge);
+  border-radius: 2px;
+  font-size: 12.5px; color: var(--ink-soft);
+}
+.ref-box .ref-value { font-family: var(--font-num); font-weight: 700; color: var(--ink); }
+
+/* ── Registration "what happens next" ── */
+.next-steps { padding: 4px 24px 0; }
+.next-steps h3 {
+  font-family: var(--font-ui); font-size: 12px; font-weight: 700;
+  letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold-deep);
+  margin-bottom: 14px;
+}
+.step {
+  display: flex; gap: 14px; padding-bottom: 18px;
+  position: relative;
+}
+.step:not(:last-child)::before {
+  content: ""; position: absolute; left: 13px; top: 30px; bottom: 0;
+  width: 2px; background: var(--edge);
+}
+.step-num {
+  width: 28px; height: 28px; flex-shrink: 0;
+  border: 1.5px solid var(--maroon); border-radius: 50%;
+  display: grid; place-items: center;
+  font-family: var(--font-num); font-weight: 700; font-size: 13px;
+  color: var(--maroon); background: var(--paper-3);
+  z-index: 1;
+}
+.step-body { padding-top: 2px; }
+.step-body .st-title { font-weight: 700; font-size: 14.5px; color: var(--ink); }
+.step-body .st-desc { font-size: 13px; color: var(--ink-soft); margin-top: 2px; }
+.step-body .st-desc .b { font-family: var(--font-num); font-weight: 700; color: var(--maroon); }
+
+/* Batch assignment - the headline info, hard to miss */
+.batch-block {
+  margin: 0 0 20px;
+  padding: 14px 16px;
+  background: var(--paper-2);
+  border: 1px solid var(--maroon);
+  border-left: 4px solid var(--maroon);
+  border-radius: 3px;
+  box-shadow: 3px 3px 0 var(--maroon-deep);
+}
+.batch-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--maroon);
+  margin-bottom: 10px;
+}
+.batch-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.batch-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px dashed var(--rule, rgba(0,0,0,0.12));
+}
+.batch-row:last-child { padding-bottom: 0; border-bottom: none; }
+.batch-course {
+  font-family: var(--font-num); font-weight: 700; font-size: 15px; color: var(--ink);
+}
+.batch-tag {
+  font-family: var(--font-num); font-weight: 700; font-size: 13px;
+  color: var(--paper-3); background: var(--maroon);
+  padding: 3px 12px; border-radius: 999px; white-space: nowrap;
+}
+
+/* WhatsApp join - given prominence */
+.wa-block {
+  margin-top: 10px;
+  padding: 14px;
+  background: var(--paper-2);
+  border: 1px dashed var(--gold-deep);
+  border-radius: 3px;
+}
+.wa-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.wa-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.wa-row .wa-course { font-size: 13px; }
+.wa-row .wa-course .b { font-family: var(--font-num); font-weight: 700; color: var(--maroon); }
+.wa-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 9px 16px;
+  background: var(--maroon); color: var(--paper-3);
+  border: 1px solid var(--maroon-deep); border-radius: 3px;
+  font-size: 13px; font-weight: 700; text-decoration: none;
+  box-shadow: 2px 2px 0 var(--maroon-deep);
+}
+.wa-btn:hover { background: var(--maroon-deep); }
+.wa-btn svg { width: 15px; height: 15px; }
+
+/* ══════════════ RESULTS TABLE ══════════════ */
+.res-summary {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  border: 1px solid var(--edge);
+  background: var(--paper-2);
+  border-radius: 3px;
+  margin-bottom: 20px;
+}
+.res-stat { padding: 14px 16px; border-right: 1px solid var(--edge); }
+.res-stat:last-child { border-right: none; }
+.res-stat .s-lbl {
+  font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--ink-faint);
+}
+.res-stat .s-val { font-family: var(--font-num); font-weight: 700; font-size: 24px; color: var(--maroon); margin-top: 2px; }
+.res-stat .s-sub { font-size: 11.5px; color: var(--ink-soft); }
+@media (max-width: 480px) {
+  .res-summary { grid-template-columns: 1fr; }
+  .res-stat { border-right: none; border-bottom: 1px solid var(--edge); }
+  .res-stat:last-child { border-bottom: none; }
+}
+
+.grade-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.grade-table th {
+  text-align: left;
+  font-family: var(--font-ui); font-size: 10.5px; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-soft);
+  padding: 8px 12px;
+  border-bottom: 2px solid var(--maroon);
+}
+.grade-table th.num, .grade-table td.num { text-align: right; }
+.grade-table th.mid, .grade-table td.mid { text-align: center; }
+.grade-table td {
+  padding: 11px 12px;
+  border-bottom: 1px solid var(--edge);
+  /* every row equal weight - no color, no bold flags */
+}
+.grade-table .t-code { font-family: var(--font-num); font-weight: 700; color: var(--ink); }
+.grade-table .t-score { font-family: var(--font-num); font-variant-numeric: tabular-nums; }
+.grade-table .t-grade {
+  font-family: var(--font-head); font-weight: 700; font-size: 17px; color: var(--ink);
+}
+.grade-table .t-remark { color: var(--ink-soft); font-size: 13px; }
+.grade-table tbody tr:last-child td { border-bottom: none; }
+
+.grade-key {
+  margin-top: 16px; padding-top: 12px;
+  border-top: 1px solid var(--edge);
+  font-size: 11.5px; color: var(--ink-faint);
+  display: flex; flex-wrap: wrap; gap: 4px 14px;
+}
+.grade-key .k { white-space: nowrap; }
+.grade-key .k b { font-family: var(--font-num); color: var(--ink-soft); }
+
+/* ── Footer ── */
+.site-footer {
+  border-top: 1px solid var(--edge);
+  max-width: var(--reg-w);
+  margin: 0 auto;
+  padding: 22px clamp(18px, 4vw, 48px);
+  text-align: center;
+  font-size: 12px;
+  color: var(--ink-faint);
+}
+.site-footer .term { color: var(--ink-soft); font-weight: 600; margin-bottom: 3px; }
+
+/* ══════════════ PRINT ══════════════ */
+@media print {
+  @page { margin: 18mm; }
+  body {
+    background: #fff !important;
+    background-image: none !important;
+    color: #000;
+    font-size: 11pt;
+  }
+  .site-header, .site-footer, .card-actions, .form-note,
+  .doc-head .stamp, .mobile-bar { display: none !important; }
+  .page { padding: 0; max-width: 100%; }
+  .doc-card, .doc-card-band {
+    border-color: #000 !important;
+    box-shadow: none !important;
+  }
+  .doc-card-band { background: #fff !important; color: #000 !important; border-bottom: 2px solid #000; }
+  .doc-card-band .seal { border-color: #000 !important; color: #000 !important; }
+  .doc-card-band h2, .doc-card-band p { color: #000 !important; }
+  .res-summary, .res-stat { background: #fff !important; border-color: #000 !important; }
+  .res-stat .s-val { color: #000 !important; }
+  .grade-table th { border-bottom-color: #000 !important; }
+  .grade-table td { border-bottom-color: #999 !important; }
+  .grade-table .t-code, .grade-table .t-grade, .res-stat .s-val { color: #000 !important; }
+  a { color: #000; text-decoration: none; }
+  .doc-card { break-inside: avoid; }
+  .grade-table tr { break-inside: avoid; }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}

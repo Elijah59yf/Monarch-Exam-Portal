@@ -1,4 +1,4 @@
-/* Global — Academic Term injection + shared utilities
+/* Global: Academic Term injection + shared utilities.
  *
  * This file is loaded on EVERY page of the portal.
  * It fetches the AcademicTerm from Strapi once, caches in sessionStorage,
@@ -52,14 +52,14 @@ const Global = (() => {
   function injectTerm(term) {
     if (!term || (!term.session && !term.semester)) return;
 
-    const label = `${term.session} — ${term.semester}`;
+    const label = `${term.session} · ${term.semester}`;
     document.querySelectorAll('.display-academic-term').forEach(el => {
       el.textContent = label;
     });
   }
 
   /**
-   * Boot — called on DOMContentLoaded.
+   * Boot: called on DOMContentLoaded.
    */
   async function init() {
     const term = await getAcademicTerm();
